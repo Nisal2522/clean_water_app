@@ -7,19 +7,19 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive dimensions - Better for Samsung A04 and small screens
-const isSmallScreen = height < 650;
-const isMediumScreen = height >= 650 && height < 750;
-const isLargeScreen = height >= 750;
+// Responsive dimensions - Optimized for Samsung A04 and small screens
+const isSmallScreen = height < 600;
+const isMediumScreen = height >= 600 && height < 700;
+const isLargeScreen = height >= 700;
 
-// Responsive sizes - Optimized for smaller screens
-const titleFontSize = isSmallScreen ? 18 : isMediumScreen ? 20 : 22;
-const subtitleFontSize = isSmallScreen ? 12 : isMediumScreen ? 13 : 14;
-const inputFontSize = isSmallScreen ? 14 : isMediumScreen ? 15 : 16;
+// Responsive sizes - Optimized for Samsung A04
+const titleFontSize = isSmallScreen ? 16 : isMediumScreen ? 18 : 20;
+const subtitleFontSize = isSmallScreen ? 11 : isMediumScreen ? 12 : 13;
+const inputFontSize = isSmallScreen ? 13 : isMediumScreen ? 14 : 15;
 
 export default function RegisterScreen() {
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -33,7 +33,7 @@ export default function RegisterScreen() {
   };
 
   const handleRegister = () => {
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -72,78 +72,92 @@ export default function RegisterScreen() {
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleBackToLogin}>
           <IconSymbol name="chevron.left" size={20} color="#8b5cf6" />
+          <Text style={styles.backText}>Back to Login</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { fontSize: titleFontSize }]}>Create Account</Text>
-        <View style={styles.placeholder} />
       </View>
 
       {/* Main Content */}
       <View style={styles.mainContent}>
         <View style={styles.contentWrapper}>
-          {/* Logo/Icon */}
-          <View style={styles.logoContainer}>
-            <View style={styles.logoCircle}>
-              <IconSymbol name="person.badge.plus" size={32} color="white" />
-            </View>
+          {/* Hero Section */}
+          <View style={styles.heroSection}>
+            <Text style={[styles.title, { fontSize: titleFontSize }]}>
+              Join the <Text style={styles.titleAccent}>Hero Squad!</Text>
+            </Text>
+            <Text style={[styles.subtitle, { fontSize: subtitleFontSize }]}>
+              Create your account to start your hygiene adventure
+            </Text>
           </View>
 
-          {/* Title */}
-          <Text style={[styles.title, { fontSize: titleFontSize }]}>
-            Join <Text style={styles.titleAccent}>Hygiene Heroes!</Text>
-          </Text>
-          
-          <Text style={[styles.subtitle, { fontSize: subtitleFontSize }]}>
-            Create your account to start your hygiene journey and become a superhero!
-          </Text>
-
-          {/* Registration Form */}
-          <View style={styles.formContainer}>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Full Name</Text>
-              <TextInput
-                style={[styles.textInput, { fontSize: inputFontSize }]}
-                placeholder="Enter your full name"
-                value={formData.name}
-                onChangeText={(value) => handleInputChange('name', value)}
-                placeholderTextColor="#9ca3af"
-              />
+          {/* Register Card */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>Create Account</Text>
+              <Text style={styles.cardDescription}>
+                Fill in your details to become a Hygiene Hero
+              </Text>
             </View>
+            
+            <View style={styles.cardContent}>
+              <View style={styles.inputContainer}>
+                <View style={styles.labelContainer}>
+                  <IconSymbol name="person" size={16} color="#8b5cf6" />
+                  <Text style={styles.label}>Username</Text>
+                </View>
+                <TextInput
+                  style={[styles.textInput, { fontSize: inputFontSize }]}
+                  placeholder="Choose a hero name"
+                  value={formData.username}
+                  onChangeText={(value) => handleInputChange('username', value)}
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Email</Text>
-              <TextInput
-                style={[styles.textInput, { fontSize: inputFontSize }]}
-                placeholder="Enter your email"
-                value={formData.email}
-                onChangeText={(value) => handleInputChange('email', value)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                placeholderTextColor="#9ca3af"
-              />
-            </View>
+              <View style={styles.inputContainer}>
+                <View style={styles.labelContainer}>
+                  <IconSymbol name="envelope" size={16} color="#ec4899" />
+                  <Text style={styles.label}>Email</Text>
+                </View>
+                <TextInput
+                  style={[styles.textInput, { fontSize: inputFontSize }]}
+                  placeholder="hero@example.com"
+                  value={formData.email}
+                  onChangeText={(value) => handleInputChange('email', value)}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Password</Text>
-              <TextInput
-                style={[styles.textInput, { fontSize: inputFontSize }]}
-                placeholder="Enter your password"
-                value={formData.password}
-                onChangeText={(value) => handleInputChange('password', value)}
-                secureTextEntry
-                placeholderTextColor="#9ca3af"
-              />
-            </View>
+              <View style={styles.inputContainer}>
+                <View style={styles.labelContainer}>
+                  <IconSymbol name="lock" size={16} color="#8b5cf6" />
+                  <Text style={styles.label}>Password</Text>
+                </View>
+                <TextInput
+                  style={[styles.textInput, { fontSize: inputFontSize }]}
+                  placeholder="Create a strong password"
+                  value={formData.password}
+                  onChangeText={(value) => handleInputChange('password', value)}
+                  secureTextEntry
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Confirm Password</Text>
-              <TextInput
-                style={[styles.textInput, { fontSize: inputFontSize }]}
-                placeholder="Confirm your password"
-                value={formData.confirmPassword}
-                onChangeText={(value) => handleInputChange('confirmPassword', value)}
-                secureTextEntry
-                placeholderTextColor="#9ca3af"
-              />
+              <View style={styles.inputContainer}>
+                <View style={styles.labelContainer}>
+                  <IconSymbol name="lock" size={16} color="#ec4899" />
+                  <Text style={styles.label}>Confirm Password</Text>
+                </View>
+                <TextInput
+                  style={[styles.textInput, { fontSize: inputFontSize }]}
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChangeText={(value) => handleInputChange('confirmPassword', value)}
+                  secureTextEntry
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -158,14 +172,8 @@ export default function RegisterScreen() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           >
-            <Text style={styles.buttonText}>Create Account</Text>
+            <Text style={styles.buttonText}>Create My Hero Account!</Text>
           </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.loginLink} onPress={handleBackToLogin}>
-          <Text style={styles.loginLinkText}>
-            Already have an account? <Text style={styles.loginLinkAccent}>Sign In</Text>
-          </Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>
@@ -184,57 +192,43 @@ const styles = StyleSheet.create({
     height: 48,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: isSmallScreen ? 16 : 20,
-    paddingVertical: isSmallScreen ? 12 : 16,
+    paddingHorizontal: isSmallScreen ? 12 : 16,
+    paddingVertical: isSmallScreen ? 8 : 12,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#8b5cf6',
+    alignSelf: 'flex-start',
   },
-  headerTitle: {
-    fontWeight: 'bold',
+  backText: {
+    fontSize: 14,
     color: '#8b5cf6',
-    textAlign: 'center',
-  },
-  placeholder: {
-    width: 40,
+    marginLeft: 6,
+    fontWeight: '500',
   },
   mainContent: {
     flex: 1,
-    paddingHorizontal: isSmallScreen ? 16 : 20,
-    paddingTop: isSmallScreen ? 20 : 30,
+    paddingHorizontal: isSmallScreen ? 12 : 16,
+    paddingTop: isSmallScreen ? 12 : 20,
   },
   contentWrapper: {
     alignItems: 'center',
   },
-  logoContainer: {
-    marginBottom: isSmallScreen ? 20 : 24,
-  },
-  logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#8b5cf6',
+  heroSection: {
     alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#8b5cf6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    marginBottom: isSmallScreen ? 12 : 16,
   },
   title: {
     fontWeight: 'bold',
     color: '#8b5cf6',
     textAlign: 'center',
-    marginBottom: isSmallScreen ? 8 : 12,
+    marginBottom: isSmallScreen ? 4 : 6,
   },
   titleAccent: {
     color: '#ec4899',
@@ -243,36 +237,70 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     textAlign: 'center',
     lineHeight: isSmallScreen ? 18 : 20,
-    marginBottom: isSmallScreen ? 24 : 32,
   },
-  formContainer: {
+  card: {
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 16,
     width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 0,
+  },
+  cardHeader: {
+    paddingHorizontal: isSmallScreen ? 12 : 16,
+    paddingTop: isSmallScreen ? 12 : 16,
+    paddingBottom: isSmallScreen ? 6 : 8,
+    alignItems: 'center',
+  },
+  cardTitle: {
+    fontSize: isSmallScreen ? 16 : 18,
+    fontWeight: 'bold',
+    color: '#374151',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  cardDescription: {
+    fontSize: isSmallScreen ? 12 : 13,
+    color: '#6b7280',
+    textAlign: 'center',
+  },
+  cardContent: {
+    paddingHorizontal: isSmallScreen ? 12 : 16,
+    paddingBottom: isSmallScreen ? 12 : 16,
   },
   inputContainer: {
-    marginBottom: isSmallScreen ? 16 : 20,
+    marginBottom: isSmallScreen ? 12 : 16,
   },
-  inputLabel: {
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  label: {
     fontSize: 14,
     fontWeight: '600',
     color: '#374151',
-    marginBottom: 8,
+    marginLeft: 8,
   },
   textInput: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: isSmallScreen ? 12 : 14,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: isSmallScreen ? 10 : 12,
     borderWidth: 1,
     borderColor: '#e5e7eb',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 2,
+    elevation: 1,
   },
   buttonContainer: {
-    paddingHorizontal: isSmallScreen ? 16 : 20,
-    paddingBottom: isSmallScreen ? 60 : 80,
+    paddingHorizontal: isSmallScreen ? 12 : 16,
+    paddingBottom: isSmallScreen ? 40 : 60,
   },
   registerButton: {
     width: '100%',
@@ -282,7 +310,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
-    marginBottom: 16,
   },
   buttonGradient: {
     paddingVertical: 16,
@@ -292,17 +319,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
-    fontWeight: 'bold',
-  },
-  loginLink: {
-    alignItems: 'center',
-  },
-  loginLinkText: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  loginLinkAccent: {
-    color: '#8b5cf6',
     fontWeight: 'bold',
   },
 });

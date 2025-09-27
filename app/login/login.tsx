@@ -1,11 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, Alert, Image } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 
 const { width, height } = Dimensions.get('window');
+
+// Responsive dimensions - Optimized for Samsung A04 and small screens
+const isSmallScreen = height < 600;
+const isMediumScreen = height >= 600 && height < 700;
+const isLargeScreen = height >= 700;
+
+// Responsive logo sizes - Optimized for Samsung A04
+const logoWidth = isSmallScreen ? 160 : isMediumScreen ? 180 : 200;
+const logoHeight = isSmallScreen ? 80 : isMediumScreen ? 90 : 100;
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -31,9 +40,15 @@ export default function LoginScreen() {
       <StatusBar style="dark" />
       <View style={styles.content}>
         <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <IconSymbol size={60} name="person.circle.fill" color="#8b5cf6" />
+          {/* Logo above Welcome Back text */}
+          <View style={styles.topLogoContainer}>
+            <Image 
+              source={require('@/assets/images/logo2.png')} 
+              style={[styles.topLogo, { width: logoWidth, height: logoHeight }]}
+              resizeMode="contain"
+            />
           </View>
+          
           <Text style={styles.title}>Welcome Back!</Text>
           <Text style={styles.subtitle}>Sign in to continue your hygiene journey</Text>
         </View>
@@ -97,11 +112,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
-  logoContainer: {
+  topLogoContainer: {
+    alignItems: 'center',
     marginBottom: 20,
-    padding: 15,
-    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-    borderRadius: 50,
+  },
+  topLogo: {
+    // Size is set dynamically via props
   },
   title: {
     fontSize: 28,
