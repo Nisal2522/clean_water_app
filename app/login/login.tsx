@@ -20,7 +20,7 @@ export default function LoginScreen() {
   };
 
   const handleSignUp = () => {
-    Alert.alert('Sign Up', 'Sign up functionality would be implemented here');
+    router.push('/register/register');
   };
 
   return (
