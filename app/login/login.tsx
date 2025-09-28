@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Dimensions, Alert, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { LinearGradient } from 'expo-linear-gradient';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import React, { useState } from 'react';
+import { Alert, Dimensions, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,7 +21,7 @@ export default function LoginScreen() {
 
   const handleLogin = () => {
     if (email && password) {
-      router.replace('/(tabs)');
+      router.push('/avatar_section/index');
     } else {
       Alert.alert('Error', 'Please fill in all fields');
     }
