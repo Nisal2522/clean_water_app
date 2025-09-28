@@ -21,7 +21,7 @@ export default function LoginScreen() {
 
   const handleLogin = () => {
     if (email && password) {
-      router.push('/avatar_section/index');
+      router.push('/avatar_section');
     } else {
       Alert.alert('Error', 'Please fill in all fields');
     }
