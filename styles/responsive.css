@@ -1,0 +1,204 @@
+/* Responsive Design for Clean Water App */
+
+/* Mobile First Approach */
+@media (max-width: 767px) {
+  .responsive-container {
+    padding: 16px;
+  }
+  
+  .responsive-card {
+    margin: 8px 0;
+    padding: 16px;
+  }
+  
+  .responsive-text {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  
+  .responsive-title {
+    font-size: 18px;
+    line-height: 24px;
+  }
+}
+
+/* Tablet Styles */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .responsive-container {
+    max-width: 768px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  
+  .responsive-card {
+    margin: 12px 0;
+    padding: 20px;
+  }
+  
+  .responsive-text {
+    font-size: 16px;
+    line-height: 22px;
+  }
+  
+  .responsive-title {
+    font-size: 22px;
+    line-height: 28px;
+  }
+  
+  .responsive-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+}
+
+/* Desktop Styles */
+@media (min-width: 1024px) {
+  .responsive-container {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+  
+  .responsive-card {
+    margin: 16px 0;
+    padding: 24px;
+  }
+  
+  .responsive-text {
+    font-size: 18px;
+    line-height: 24px;
+  }
+  
+  .responsive-title {
+    font-size: 24px;
+    line-height: 32px;
+  }
+  
+  .responsive-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+  }
+  
+  .responsive-layout {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+  }
+  
+  .responsive-sidebar {
+    flex: 0 0 300px;
+  }
+  
+  .responsive-main {
+    flex: 1;
+  }
+}
+
+/* Portrait Orientation */
+@media (orientation: portrait) {
+  .responsive-container {
+    flex-direction: column;
+    padding: 16px;
+  }
+  
+  .responsive-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .responsive-card {
+    margin: 8px 0;
+    padding: 16px;
+  }
+  
+  .responsive-text {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  
+  .responsive-title {
+    font-size: 20px;
+    line-height: 26px;
+  }
+}
+
+/* Landscape Orientation */
+@media (orientation: landscape) {
+  .responsive-container {
+    flex-direction: row;
+    padding: 12px;
+  }
+  
+  .responsive-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  .responsive-card {
+    margin: 4px 0;
+    padding: 12px;
+  }
+  
+  .responsive-text {
+    font-size: 12px;
+    line-height: 16px;
+  }
+  
+  .responsive-title {
+    font-size: 16px;
+    line-height: 20px;
+  }
+}
+
+/* Landscape Orientation - Small Height */
+@media (orientation: landscape) and (max-height: 500px) {
+  .responsive-container {
+    padding: 8px;
+  }
+  
+  .responsive-card {
+    margin: 2px 0;
+    padding: 8px;
+  }
+  
+  .responsive-text {
+    font-size: 10px;
+    line-height: 14px;
+  }
+  
+  .responsive-title {
+    font-size: 14px;
+    line-height: 18px;
+  }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .responsive-image {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .responsive-container {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+  
+  .responsive-card {
+    background-color: #2a2a2a;
+    border: 1px solid #3a3a3a;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .responsive-animation {
+    animation: none;
+    transition: none;
+  }
+}

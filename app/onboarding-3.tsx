@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { LinearGradient } from 'expo-linear-gradient';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import React from 'react';
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -95,7 +95,13 @@ export default function OnboardingScreen3() {
 
       {/* Next Button - Fixed at bottom */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleNext}>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={handleNext}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Continue to login"
+        >
           <LinearGradient
             colors={['#8b5cf6', '#ec4899']}
             style={styles.buttonGradient}
@@ -138,10 +144,7 @@ const styles = StyleSheet.create({
   imageWrapper: {
     backgroundColor: '#8b5cf6',
     padding: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     elevation: 8,
   },
   heroImage: {
@@ -202,10 +205,7 @@ const styles = StyleSheet.create({
     paddingVertical: isSmallScreen ? 8 : 10,
     borderRadius: 8,
     marginBottom: isSmallScreen ? 6 : 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
     elevation: 1,
   },
   powerIcon: {
@@ -251,10 +251,7 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     elevation: 4,
   },
   buttonGradient: {

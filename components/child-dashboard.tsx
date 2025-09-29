@@ -1,11 +1,12 @@
-import { Ionicons } from '@expo/vector-icons';
+import { useResponsive } from '@/hooks/use-responsive';
+import { AntDesign, Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, {
-    FadeIn,
-    SlideInLeft,
-    SlideInUp
+  FadeIn,
+  SlideInLeft,
+  SlideInUp
 } from 'react-native-reanimated';
 
 interface ChildDashboardProps {
@@ -26,6 +27,7 @@ export function ChildDashboard({
   onNavigate = () => {}
 }: ChildDashboardProps) {
   const [activeTab, setActiveTab] = useState('home');
+  const { isMobile, isTablet, isDesktop, screenWidth, orientation } = useResponsive();
 
   const progressPercentage = (stars / totalStars) * 100;
 
@@ -35,21 +37,21 @@ export function ChildDashboard({
       title: 'Games',
       icon: '🎮',
       description: 'Play fun hygiene games!',
-      gradient: ['#3B82F6', '#8B5CF6']
+      gradient: ['#3B82F6', '#8B5CF6'] as const
     },
     {
       id: 'lessons',
       title: 'Lessons',
       icon: '📚',
       description: 'Learn hygiene tips',
-      gradient: ['#10B981', '#3B82F6']
+      gradient: ['#10B981', '#3B82F6'] as const
     },
     {
       id: 'quizzes',
       title: 'Challenges',
       icon: '❓',
       description: 'Test your knowledge!',
-      gradient: ['#F59E0B', '#EC4899']
+      gradient: ['#F59E0B', '#EC4899'] as const
     }
   ];
 
@@ -61,20 +63,32 @@ export function ChildDashboard({
   ];
 
   const tabs = [
-    { id: 'home', label: 'Home', icon: 'home-outline' },
-    { id: 'progress', label: 'Progress', icon: 'trending-up-outline' },
-    { id: 'settings', label: 'Settings', icon: 'settings-outline' }
+    { id: 'home', label: 'Home', icon: 'home', iconFamily: 'Ionicons' },
+    { id: 'progress', label: 'Progress', icon: 'trending-up', iconFamily: 'Ionicons' },
+    { id: 'settings', label: 'Settings', icon: 'settings', iconFamily: 'Ionicons' }
   ];
 
+
   return (
-    <View style={styles.container}>
+    <View style={[
+      styles.container,
+      isDesktop && styles.containerDesktop,
+      isTablet && styles.containerTablet,
+      orientation === 'landscape' && isMobile && styles.containerLandscape
+    ]}>
       {/* Status Bar Space */}
       <View style={styles.statusBar} />
       
       {/* Profile Card */}
       <Animated.View 
         entering={FadeIn.delay(200).duration(500)}
-        style={styles.profileCard}
+        style={[
+          styles.profileCard,
+          isMobile && styles.profileCardMobile,
+          isTablet && styles.profileCardTablet,
+          isDesktop && styles.profileCardDesktop,
+          orientation === 'landscape' && isMobile && styles.profileCardLandscape
+        ]}
       >
         <LinearGradient
           colors={['rgba(255,255,255,0.9)', 'rgba(255,255,255,0.8)']}
@@ -99,16 +113,16 @@ export function ChildDashboard({
               
               <View style={styles.profileInfo}>
                 <Text style={styles.greeting}>Hi, {childName}! 👋</Text>
-                <View style={styles.levelContainer}>
-                  <View style={styles.levelBadge}>
-                    <Ionicons name="trophy" size={12} color="#F59E0B" />
-                    <Text style={styles.levelText}>Level {level}</Text>
+                  <View style={styles.levelContainer}>
+                    <View style={styles.levelBadge}>
+                      <MaterialIcons name="emoji-events" size={12} color="#F59E0B" />
+                      <Text style={styles.levelText}>Level {level}</Text>
+                    </View>
+                    <View style={styles.starsContainer}>
+                      <AntDesign name="star" size={14} color="#F59E0B" />
+                      <Text style={styles.starsText}>{stars}/{totalStars}</Text>
+                    </View>
                   </View>
-                  <View style={styles.starsContainer}>
-                    <Ionicons name="star" size={14} color="#F59E0B" />
-                    <Text style={styles.starsText}>{stars}/{totalStars}</Text>
-                  </View>
-                </View>
                 <View style={styles.progressContainer}>
                   <View style={styles.progressBar}>
                     <Animated.View 
@@ -152,7 +166,15 @@ export function ChildDashboard({
       </Animated.View>
 
       {/* Activity Cards */}
-      <ScrollView style={styles.activitiesContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={[
+          styles.activitiesContainer,
+          isTablet && styles.activitiesContainerTablet,
+          isDesktop && styles.activitiesContainerDesktop,
+          orientation === 'landscape' && isMobile && styles.activitiesContainerLandscape
+        ]} 
+        showsVerticalScrollIndicator={false}
+      >
         <Animated.View 
           entering={FadeIn.delay(600).duration(500)}
           style={styles.activityCardsContainer}
@@ -170,6 +192,8 @@ export function ChildDashboard({
                 <LinearGradient
                   colors={card.gradient}
                   style={styles.activityGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
                 >
                   <View style={styles.activityContent}>
                     <Text style={styles.activityIcon}>{card.icon}</Text>
@@ -177,8 +201,8 @@ export function ChildDashboard({
                       <Text style={styles.activityTitle}>{card.title}</Text>
                       <Text style={styles.activityDescription}>{card.description}</Text>
                     </View>
-                    <Ionicons 
-                      name="chevron-forward" 
+                    <Feather 
+                      name="chevron-right" 
                       size={24} 
                       color="rgba(255,255,255,0.8)" 
                     />
@@ -200,32 +224,38 @@ export function ChildDashboard({
           style={styles.navigationGradient}
         >
           <View style={styles.navigationContent}>
-            {tabs.map((tab) => (
-              <TouchableOpacity
-                key={tab.id}
-                onPress={() => {
-                  setActiveTab(tab.id);
-                  onNavigate(tab.id);
-                }}
-                style={[
-                  styles.navigationTab,
-                  activeTab === tab.id && styles.activeTab
-                ]}
-                activeOpacity={0.7}
-              >
-                <Ionicons 
-                  name={tab.icon as any} 
-                  size={20} 
-                  color={activeTab === tab.id ? '#FFFFFF' : '#6B7280'} 
-                />
-                <Text style={[
-                  styles.navigationLabel,
-                  activeTab === tab.id && styles.activeNavigationLabel
-                ]}>
-                  {tab.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {tabs.map((tab) => {
+              const IconComponent = tab.iconFamily === 'Ionicons' ? Ionicons : 
+                                   tab.iconFamily === 'MaterialIcons' ? MaterialIcons :
+                                   tab.iconFamily === 'AntDesign' ? AntDesign : Feather;
+              
+              return (
+                <TouchableOpacity
+                  key={tab.id}
+                  onPress={() => {
+                    setActiveTab(tab.id);
+                    onNavigate(tab.id);
+                  }}
+                  style={[
+                    styles.navigationTab,
+                    activeTab === tab.id && styles.activeTab
+                  ]}
+                  activeOpacity={0.7}
+                >
+                  <IconComponent 
+                    name={tab.icon as any} 
+                    size={20} 
+                    color={activeTab === tab.id ? '#FFFFFF' : '#6B7280'} 
+                  />
+                  <Text style={[
+                    styles.navigationLabel,
+                    activeTab === tab.id && styles.activeNavigationLabel
+                  ]}>
+                    {tab.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </LinearGradient>
       </Animated.View>
@@ -238,6 +268,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F3F4F6',
   },
+  containerTablet: {
+    maxWidth: 768,
+    alignSelf: 'center',
+  },
+  containerDesktop: {
+    maxWidth: 1024,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: 24,
+  },
+  containerLandscape: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+  },
   statusBar: {
     height: 48,
   },
@@ -245,11 +289,28 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     marginBottom: 16,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
     elevation: 8,
+  },
+  profileCardMobile: {
+    marginHorizontal: 16,
+  },
+  profileCardTablet: {
+    marginHorizontal: 32,
+    maxWidth: 600,
+    alignSelf: 'center',
+  },
+  profileCardDesktop: {
+    marginHorizontal: 0,
+    marginRight: 16,
+    flex: 1,
+    maxWidth: 400,
+  },
+  profileCardLandscape: {
+    marginHorizontal: 8,
+    marginBottom: 8,
+    flex: 0.4,
+    maxWidth: 300,
   },
   profileGradient: {
     borderRadius: 20,
@@ -364,16 +425,28 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
   },
+  activitiesContainerTablet: {
+    paddingHorizontal: 32,
+    maxWidth: 600,
+    alignSelf: 'center',
+  },
+  activitiesContainerDesktop: {
+    paddingHorizontal: 0,
+    flex: 1,
+    marginLeft: 16,
+  },
+  activitiesContainerLandscape: {
+    paddingHorizontal: 8,
+    flex: 0.6,
+    marginLeft: 8,
+  },
   activityCardsContainer: {
     gap: 16,
     paddingBottom: 20,
   },
   activityCard: {
     borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
     elevation: 4,
   },
   activityGradient: {
@@ -405,10 +478,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     marginBottom: 32,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
     elevation: 8,
   },
   navigationGradient: {

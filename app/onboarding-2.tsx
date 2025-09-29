@@ -1,9 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { LinearGradient } from 'expo-linear-gradient';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import React from 'react';
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -92,7 +91,13 @@ export default function OnboardingScreen2() {
 
       {/* Next Button - Fixed at bottom */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleNext}>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={handleNext}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Continue to next step"
+        >
           <LinearGradient
             colors={['#8b5cf6', '#ec4899']}
             style={styles.buttonGradient}
@@ -135,10 +140,7 @@ const styles = StyleSheet.create({
   imageWrapper: {
     backgroundColor: '#8b5cf6',
     padding: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     elevation: 8,
   },
   heroImage: {
@@ -197,10 +199,7 @@ const styles = StyleSheet.create({
     marginBottom: isSmallScreen ? 6 : 8,
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
     elevation: 2,
   },
   checkmarkContainer: {
@@ -252,10 +251,7 @@ const styles = StyleSheet.create({
   button: {
     width: '100%',
     borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     elevation: 4,
   },
   buttonGradient: {
