@@ -6,6 +6,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function HomeScreen() {
   const handleNavigate = (section: string) => {
     switch (section) {
+      case 'water-drop-game':
+        // Navigate to Water Drop Game
+        router.push('/water-drop-game');
+        break;
       case 'games':
         // Navigate to games section
         console.log('Navigate to games');

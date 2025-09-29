@@ -33,25 +33,32 @@ export function ChildDashboard({
 
   const activityCards = [
     {
+      id: 'water-drop-game',
+      title: 'Water Drop Game',
+      icon: '💧',
+      description: 'Catch water drops and save water!',
+      gradient: ['#3B82F6', '#1D4ED8'] as const
+    },
+    {
       id: 'games',
       title: 'Games',
       icon: '🎮',
       description: 'Play fun hygiene games!',
-      gradient: ['#3B82F6', '#8B5CF6'] as const
+      gradient: ['#8B5CF6', '#7C3AED'] as const
     },
     {
       id: 'lessons',
       title: 'Lessons',
       icon: '📚',
       description: 'Learn hygiene tips',
-      gradient: ['#10B981', '#3B82F6'] as const
+      gradient: ['#10B981', '#059669'] as const
     },
     {
       id: 'quizzes',
       title: 'Challenges',
       icon: '❓',
       description: 'Test your knowledge!',
-      gradient: ['#F59E0B', '#EC4899'] as const
+      gradient: ['#F59E0B', '#D97706'] as const
     }
   ];
 
