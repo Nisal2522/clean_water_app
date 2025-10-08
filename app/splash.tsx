@@ -1,19 +1,20 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
+import { Dimensions, StyleSheet, Text, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
 export default function SplashScreen() {
+  const pathname = usePathname();
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // Navigate to onboarding after 2 seconds
-      router.replace('/onboarding');
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, []);
+    if (pathname === '/splash') {
+      const timer = setTimeout(() => {
+        router.replace('/onboarding');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [pathname]);
 
   return (
     <View style={styles.container}>

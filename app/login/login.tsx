@@ -1,5 +1,6 @@
+import { signIn } from '@/config/auth';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { Alert, Dimensions, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -18,12 +19,22 @@ const logoHeight = isSmallScreen ? 80 : isMediumScreen ? 90 : 100;
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    if (email && password) {
-      router.push('/avatar_section');
-    } else {
+  const handleLogin = async () => {
+    if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+    try {
+      setLoading(true);
+      await signIn(email, password);
+      router.push('/child_profile/child_profile' as Href);
+    } catch (e: any) {
+      const message = e?.message || 'Sign in failed. Please try again.';
+      Alert.alert('Sign in error', message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,14 +87,14 @@ export default function LoginScreen() {
             />
           </View>
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
             <LinearGradient
               colors={['#8b5cf6', '#ec4899']}
               style={styles.loginButtonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
-              <Text style={styles.loginButtonText}>Sign In</Text>
+              <Text style={styles.loginButtonText}>{loading ? 'Signing in…' : 'Sign In'}</Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -164,6 +175,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+    opacity: 1,
   },
   loginButtonGradient: {
     paddingVertical: 16,
