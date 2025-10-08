@@ -38,8 +38,19 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
+    "extra": {
+      "firebase": {
+        "apiKey": "AIzaSyAFZpaOgd_WOCF9WHT3FgJ5Yp4OqaeBa3g",
+        "authDomain": "clean-water-66585.firebaseapp.com",
+        "projectId": "clean-water-66585",
+        "storageBucket": "clean-water-66585.firebasestorage.app",
+        "messagingSenderId": "143202666483",
+        "appId": "1:143202666483:web:fae34115dd6ce98f177486"
+      }
+    },
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
