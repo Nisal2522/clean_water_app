@@ -77,7 +77,7 @@ export default function AvatarScreen() {
         },
         { merge: true }
       );
-    router.replace('/(tabs)');
+    router.replace('/student/dashboard');
     } catch (e: any) {
       const message = e?.message || 'Failed to save profile. Please try again.';
       Alert.alert('Save error', message);

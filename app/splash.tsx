@@ -1,4 +1,4 @@
-import { router, usePathname } from 'expo-router';
+import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { Dimensions, StyleSheet, Text, View } from 'react-native';
@@ -6,15 +6,13 @@ import { Dimensions, StyleSheet, Text, View } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
 export default function SplashScreen() {
-  const pathname = usePathname();
   useEffect(() => {
-    if (pathname === '/splash') {
-      const timer = setTimeout(() => {
-        router.replace('/onboarding');
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [pathname]);
+    const timer = setTimeout(() => {
+      router.replace('/onboarding');
+    }, 2000);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <View style={styles.container}>

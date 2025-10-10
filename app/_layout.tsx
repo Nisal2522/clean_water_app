@@ -22,8 +22,19 @@ export default function RootLayout() {
         <Stack.Screen name="login/login" options={{ headerShown: false }} />
         <Stack.Screen name="register/register" options={{ headerShown: false }} />
         <Stack.Screen name="child_profile/child_profile" options={{ headerShown: false }} />
+        <Stack.Screen name="student/dashboard" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="student/lesson-dashboard" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="student/lesson-quiz-page" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="student/games-dashboard" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="student/catch-water-drops-game" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="admin/dashboard" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        <Stack.Screen name="admin/lesson-management" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="admin/add-lesson" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="admin/view-lessons" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="admin/update-lesson" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="admin/delete-lesson" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

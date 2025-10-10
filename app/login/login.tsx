@@ -4,6 +4,8 @@ import { router, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { Alert, Dimensions, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { db } from '@/config/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,8 +30,24 @@ export default function LoginScreen() {
     }
     try {
       setLoading(true);
-      await signIn(email, password);
-      router.push('/child_profile/child_profile' as Href);
+      const { user, role } = await signIn(email, password);
+      
+      // Route based on role
+      if (role === 'admin') {
+        router.push('/admin/dashboard' as Href);
+      } else {
+        // Check if student has a child profile
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userData = userDoc.data();
+        
+        if (userData?.childProfile) {
+          // Profile exists, go to student dashboard
+          router.push('/student/dashboard' as Href);
+        } else {
+          // No profile, go to create profile
+          router.push('/child_profile/child_profile' as Href);
+        }
+      }
     } catch (e: any) {
       const message = e?.message || 'Sign in failed. Please try again.';
       Alert.alert('Sign in error', message);
@@ -87,14 +105,20 @@ export default function LoginScreen() {
             />
           </View>
 
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
+          <TouchableOpacity 
+            style={styles.loginButton} 
+            onPress={handleLogin} 
+            disabled={loading}
+          >
             <LinearGradient
               colors={['#8b5cf6', '#ec4899']}
               style={styles.loginButtonGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
-              <Text style={styles.loginButtonText}>{loading ? 'Signing in…' : 'Sign In'}</Text>
+              <Text style={styles.loginButtonText}>
+                {loading ? 'Signing in…' : 'Sign In'}
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
 
