@@ -11,9 +11,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+  RefreshControl,
 } from 'react-native';
 import { auth, db } from '@/config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 
 interface ChildProfile {
@@ -38,9 +40,13 @@ const avatarImages: Record<string, any> = {
 export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ChildProfile | null>(null);
+  const [completedLessons, setCompletedLessons] = useState(0);
+  const [totalPoints, setTotalPoints] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchProfile();
+    fetchStats();
   }, []);
 
   const fetchProfile = async () => {
@@ -64,6 +70,43 @@ export default function StudentDashboard() {
       Alert.alert('Error', 'Failed to load profile');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const scoresQuery = query(collection(db, 'lessonScores'), where('userId', '==', user.uid));
+      const querySnapshot = await getDocs(scoresQuery);
+
+      let completed = 0;
+      let points = 0;
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.score === 100) {
+          completed++;
+          points += data.score;
+        }
+      });
+
+      setCompletedLessons(completed);
+      setTotalPoints(points);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([fetchProfile(), fetchStats()]);
+    } catch (error) {
+      console.error('Error refreshing:', error);
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -124,7 +167,9 @@ export default function StudentDashboard() {
       style={styles.container}
     >
       <StatusBar style="dark" />
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#8b5cf6']} />
+      }>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
@@ -249,17 +294,12 @@ export default function StudentDashboard() {
           
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
-              <Text style={styles.statNumber}>0</Text>
+              <Text style={styles.statNumber}>{completedLessons}</Text>
               <Text style={styles.statLabel}>Lessons</Text>
             </View>
             
             <View style={styles.statCard}>
-              <Text style={styles.statNumber}>0</Text>
-              <Text style={styles.statLabel}>Quizzes</Text>
-            </View>
-            
-            <View style={styles.statCard}>
-              <Text style={styles.statNumber}>0</Text>
+              <Text style={styles.statNumber}>{totalPoints}</Text>
               <Text style={styles.statLabel}>Points</Text>
             </View>
           </View>

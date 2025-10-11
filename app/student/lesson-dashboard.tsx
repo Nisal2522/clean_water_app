@@ -31,9 +31,11 @@ export default function LessonDashboard() {
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [hasQuiz, setHasQuiz] = useState(false);
   const [checkingQuiz, setCheckingQuiz] = useState(false);
+  const [completedLessonIds, setCompletedLessonIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchLessons();
+    fetchCompletedLessons();
   }, []);
 
   const fetchLessons = async () => {
@@ -56,6 +58,25 @@ export default function LessonDashboard() {
       Alert.alert('Error', 'Failed to load lessons');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCompletedLessons = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const scoresQuery = query(collection(db, 'lessonScores'), where('userId', '==', user.uid), where('score', '==', 100));
+      const querySnapshot = await getDocs(scoresQuery);
+
+      const completed = new Set<string>();
+      querySnapshot.forEach((doc) => {
+        completed.add(doc.data().lessonId);
+      });
+
+      setCompletedLessonIds(completed);
+    } catch (error) {
+      console.error('Error fetching completed lessons:', error);
     }
   };
 
@@ -222,20 +243,20 @@ export default function LessonDashboard() {
           <Text style={styles.backButtonText}>← Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Your Lessons</Text>
-        <Text style={styles.subtitle}>{lessons.length} Lessons Completed</Text>
+        <Text style={styles.subtitle}>{completedLessonIds.size} Lessons Completed</Text>
       </View>
 
-      {lessons.length === 0 ? (
+      {lessons.filter(lesson => !completedLessonIds.has(lesson.id)).length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyEmoji}>📚</Text>
-          <Text style={styles.emptyTitle}>No Lessons Available</Text>
+          <Text style={styles.emptyEmoji}>🎉</Text>
+          <Text style={styles.emptyTitle}>All Lessons Completed!</Text>
           <Text style={styles.emptySubtitle}>
-            Check back later for new lessons
+            Great job! You've mastered all available lessons.
           </Text>
         </View>
       ) : (
         <FlatList
-          data={lessons}
+          data={lessons.filter(lesson => !completedLessonIds.has(lesson.id))}
           renderItem={renderLesson}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContainer}
