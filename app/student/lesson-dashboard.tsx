@@ -100,7 +100,7 @@ export default function LessonDashboard() {
       activeOpacity={0.8}
     >
       <LinearGradient
-        colors={['#a78bfa', '#c4b5fd']}
+        colors={['#ebddf9ff', '#fce7f3']}
         style={styles.cardGradient}
       >
         <View style={styles.cardHeader}>
@@ -137,7 +137,7 @@ export default function LessonDashboard() {
   if (loading) {
     return (
       <LinearGradient
-        colors={['#a78bfa', '#c4b5fd', '#e9d5ff']}
+        colors={['#faf5ff', '#fce7f3']}
         style={styles.container}
       >
         <StatusBar style="dark" />
@@ -176,11 +176,6 @@ export default function LessonDashboard() {
             )}
 
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>📖 What is {selectedLesson.topic}?</Text>
-              <Text style={styles.content}>{selectedLesson.content}</Text>
-            </View>
-
-            <View style={styles.section}>
               <Text style={styles.sectionTitle}>🤔 Why is this important?</Text>
               <View style={styles.bulletPoint}>
                 <Text style={styles.bulletIcon}>✓</Text>
@@ -201,7 +196,7 @@ export default function LessonDashboard() {
             ) : hasQuiz && (
               <TouchableOpacity style={styles.quizButton} onPress={handleStartQuiz}>
                 <LinearGradient
-                  colors={['#8b5cf6', '#a78bfa']}
+                  colors={['#a950a9ff', '#f87cc2ff']}
                   style={styles.quizButtonGradient}
                 >
                   <Text style={styles.quizButtonText}>Start Quiz</Text>
@@ -349,12 +344,12 @@ const styles = StyleSheet.create({
   lessonTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#1f2937',
     marginBottom: 4,
   },
   lessonSubtitle: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: '#4b5563',
   },
   lessonVideo: {
     width: '100%',
@@ -367,7 +362,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   reviewButton: {
-    backgroundColor: 'white',
+    backgroundColor: '#a950a9ff',
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 25,
@@ -377,7 +372,7 @@ const styles = StyleSheet.create({
   reviewButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#8b5cf6',
+    color: '#ffffff',
   },
   scrollView: {
     flex: 1,

@@ -171,7 +171,7 @@ export default function LessonQuiz() {
   if (loading) {
     return (
       <LinearGradient
-        colors={['#a78bfa', '#c4b5fd', '#e9d5ff']}
+       colors={['#faf5ff', '#fce7f3']}
         style={styles.container}
       >
         <StatusBar style="dark" />
@@ -241,7 +241,7 @@ export default function LessonQuiz() {
 
   return (
     <LinearGradient
-      colors={['#a78bfa', '#c4b5fd', '#e9d5ff']}
+      colors={['#faf5ff', '#fce7f3']}
       style={styles.container}
     >
       <StatusBar style="dark" />
@@ -327,7 +327,7 @@ export default function LessonQuiz() {
                 onPress={handleCompleteQuiz}
               >
                 <LinearGradient
-                  colors={['#8b5cf6', '#a78bfa']}
+                   colors={['#a950a9ff', '#f87cc2ff']}
                   style={styles.completeButtonGradient}
                 >
                   <Text style={styles.completeButtonText}>Complete Quiz</Text>
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#8b5cf6',
+    backgroundColor: '#c42c96ff',
     borderRadius: 4,
   },
   progressText: {

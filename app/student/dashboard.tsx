@@ -106,7 +106,7 @@ export default function StudentDashboard() {
   if (loading) {
     return (
       <LinearGradient
-        colors={['#a78bfa', '#c4b5fd', '#e9d5ff']}
+         colors={['#faf5ff', '#fce7f3']}
         style={styles.container}
       >
         <StatusBar style="dark" />

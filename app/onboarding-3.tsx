@@ -222,7 +222,6 @@ const styles = StyleSheet.create({
   powerText: {
     fontSize: 14,
     color: '#374151',
-    flex: 1,
   },
   progressContainer: {
     flexDirection: 'row',

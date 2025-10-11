@@ -19,7 +19,7 @@ import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const ITEM_SIZE = 60;
 const TOUCH_AREA_SIZE = 300;
-const CATCH_ZONE_HEIGHT = 320; // Bottom zone where items can be caught
+const CATCH_ZONE_HEIGHT = 300; // Bottom zone where items can be caught
 const HEADER_HEIGHT = 120; // Approximate header height
 
 type ItemType = 'catchWaterDrop' | 'water_drop' | 'rock' | 'germwaterDrop';
@@ -322,8 +322,7 @@ export default function CatchWaterDropsGame() {
       return;
     }
 
-    // Calculate the catch zone start position (from top of screen)
-    const catchZoneStartY = SCREEN_HEIGHT - CATCH_ZONE_HEIGHT;
+    const catchZoneStartY = SCREEN_HEIGHT - CATCH_ZONE_HEIGHT - HEADER_HEIGHT;
     
     // Check if item is in the catch zone
     if (item.currentY < catchZoneStartY) {

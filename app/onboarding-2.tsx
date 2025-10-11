@@ -218,12 +218,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   habitText: {
-    fontSize: 16,
-    color: '#000000',
-    fontWeight: '600',
-    flex: 1,
-    lineHeight: 22,
-    textAlign: 'left',
+    fontSize: 14,
+    color: '#374151',
   },
   progressContainer: {
     flexDirection: 'row',
