@@ -4,7 +4,6 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { Alert, Dimensions, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system/legacy';
 import { Video, ResizeMode } from 'expo-av';
 import { db } from '@/config/firebase';
 import { collection, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
@@ -66,27 +65,45 @@ export default function AddLesson() {
     }
   };
 
-  const saveVideoLocally = async (uri: string, lessonId: string) => {
+  const uploadVideoToCloudinary = async (uri: string, lessonId: string) => {
     try {
-      const fileExtension = uri.split('.').pop();
-      const fileName = `lesson_${lessonId}.${fileExtension}`;
-      const directory = `${FileSystem.documentDirectory ?? ''}lessons/`;
-      
-      // Create directory if it doesn't exist
-      const dirInfo = await FileSystem.getInfoAsync(directory);
-      if (!dirInfo.exists) {
-        await FileSystem.makeDirectoryAsync(directory, { intermediates: true });
+
+      const CLOUD_NAME = 'Your Cloudinary Name Here';
+      const UPLOAD_PRESET = 'UPLOAD_PRESET_HERE';
+
+      // Get file extension and determine MIME type
+      const fileExtension = uri.split('.').pop()?.toLowerCase() || 'mp4';
+      const mimeType = `video/${fileExtension === 'mov' ? 'quicktime' : fileExtension}`;
+
+      const formData = new FormData();
+      formData.append('file', {
+        uri: uri,
+        type: mimeType,
+        name: `lesson_${lessonId}.${fileExtension}`,
+      } as any);
+      formData.append('upload_preset', UPLOAD_PRESET);
+      formData.append('public_id', `lesson_${lessonId}`);
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return data.secure_url; // Return the Cloudinary URL
+      } else {
+        console.error('Cloudinary upload error:', data);
+        Alert.alert('Upload Failed', `Failed to upload video: ${data.error?.message || 'Unknown error'}`);
+        return null;
       }
-
-      const localUri = `${directory}${fileName}`;
-      await FileSystem.copyAsync({
-        from: uri,
-        to: localUri,
-      });
-
-      return localUri;
     } catch (error) {
-      console.error('Error saving video locally:', error);
+      console.error('Error uploading video to Cloudinary:', error);
+      Alert.alert('Upload Error', 'An error occurred while uploading the video.');
       return null;
     }
   };
@@ -133,12 +150,12 @@ export default function AddLesson() {
       const lessonRef = await addDoc(collection(db, 'lessons'), lessonData);
       const lessonId = lessonRef.id;
 
-      // If video selected, save locally and update lesson
+      
       if (videoUri) {
-        const localPath = await saveVideoLocally(videoUri, lessonId);
-        if (localPath) {
+        const cloudinaryUrl = await uploadVideoToCloudinary(videoUri, lessonId);
+        if (cloudinaryUrl) {
           await updateDoc(doc(db, 'lessons', lessonId), {
-            videoUrl: localPath,
+            videoUrl: cloudinaryUrl,
           });
         }
       }
