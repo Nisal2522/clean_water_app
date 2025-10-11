@@ -72,7 +72,7 @@ export default function ViewLessons() {
 
   return (
     <LinearGradient
-     colors={['#faf5ff', '#fce7f3']}
+     colors={["#d7e9ff", "#cfe6ff"]}
       style={styles.container}
     >
       <StatusBar style="dark" />
@@ -122,13 +122,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#4c1d95',
+    color: '#0052cc',
     fontWeight: '600',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1f2937',
+    color: '#0052cc',
     marginBottom: 4,
   },
   subtitle: {

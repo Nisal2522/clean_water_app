@@ -171,7 +171,7 @@ export default function LessonQuiz() {
   if (loading) {
     return (
       <LinearGradient
-       colors={['#faf5ff', '#fce7f3']}
+       colors={["#d7e9ff", "#cfe6ff"]}
         style={styles.container}
       >
         <StatusBar style="dark" />
@@ -241,7 +241,7 @@ export default function LessonQuiz() {
 
   return (
     <LinearGradient
-      colors={['#faf5ff', '#fce7f3']}
+      colors={["#d7e9ff", "#cfe6ff"]}
       style={styles.container}
     >
       <StatusBar style="dark" />

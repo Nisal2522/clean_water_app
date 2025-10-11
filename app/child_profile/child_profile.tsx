@@ -1,14 +1,21 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { Href, router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Dimensions, Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-// add: firebase imports
-import { AI_SERVICE, auth, db, HUGGINGFACE_API_TOKEN, HUGGINGFACE_API_URL, REPLICATE_API_TOKEN, REPLICATE_API_URL, storage } from '@/config/firebase';
+// Firebase imports
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import {
+  auth,
+  CORS_PROXY,
+  db,
+  REPLICATE_API_TOKEN,
+  REPLICATE_API_URL,
+  REPLICATE_AVATAR_MODEL,
+  USE_CORS_PROXY
+} from '../../config/firebase';
 
 const { width, height } = Dimensions.get('window');
 
@@ -25,7 +32,7 @@ const avatarOptions = [
   { id: 'character3', image: require('../../assets/images/avatar_hero_3.png'), label: 'Robot', category: 'hero' },
 ];
 
-export default function AvatarScreen() {
+export default function ChildProfileScreen() {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('');
@@ -50,7 +57,7 @@ export default function AvatarScreen() {
     const user = auth.currentUser;
     if (!user) {
       Alert.alert('Not signed in', 'Please log in again.');
-      router.replace('/login/login');
+      router.replace('/login/login' as Href);
       return;
     }
 
@@ -92,12 +99,8 @@ export default function AvatarScreen() {
 
   const handleUploadPhoto = async () => {
     try {
-      console.log('📸 Starting photo upload process...');
-      
       // Request permission
-      console.log('🔐 Requesting media library permissions...');
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      console.log('🔐 Permission result:', permissionResult);
       
       if (permissionResult.granted === false) {
         Alert.alert('Permission Required', 'Permission to access camera roll is required!');
@@ -105,7 +108,6 @@ export default function AvatarScreen() {
       }
 
       // Launch image picker
-      console.log('📱 Launching image picker...');
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
@@ -113,23 +115,17 @@ export default function AvatarScreen() {
         quality: 0.8,
       });
 
-      console.log('📱 Image picker result:', result);
-
       if (!result.canceled && result.assets[0]) {
-        console.log('📸 Image selected, starting upload...');
         await uploadAndGenerateAvatar(result.assets[0].uri);
-      } else {
-        console.log('❌ No image selected or picker canceled');
       }
     } catch (error) {
-      console.error('❌ Error in handleUploadPhoto:', error);
+      console.error('Error in handleUploadPhoto:', error);
       Alert.alert('Error', 'Failed to pick image. Please try again.');
     }
   };
 
   const convertImageToBase64 = async (imageUri: string): Promise<string> => {
     try {
-      console.log('🔄 Converting image to base64...');
       const response = await fetch(imageUri);
       const blob = await response.blob();
       
@@ -137,77 +133,33 @@ export default function AvatarScreen() {
         const reader = new FileReader();
         reader.onload = () => {
           const base64 = reader.result as string;
-          console.log('✅ Base64 conversion successful, length:', base64.length);
           resolve(base64);
         };
         reader.onerror = reject;
         reader.readAsDataURL(blob);
       });
     } catch (error: any) {
-      console.error('❌ Error converting to base64:', error);
       throw new Error(`Failed to convert image: ${error?.message || 'Unknown error'}`);
     }
   };
 
   const uploadAndGenerateAvatar = async (imageUri: string) => {
-    console.log('🚀 Starting uploadAndGenerateAvatar with URI:', imageUri);
-    console.log('🌐 Platform:', Platform.OS);
-    
     const user = auth.currentUser;
     if (!user) {
-      console.log('❌ No authenticated user');
       Alert.alert('Not signed in', 'Please log in again.');
       return;
     }
 
-    console.log('👤 User authenticated:', user.uid);
-
     try {
       setUploading(true);
-      console.log('📤 Setting uploading state to true');
       
-      let downloadURL: string;
-      
-      if (Platform.OS === 'web') {
-        console.log('🌐 Web platform detected - converting to base64');
-        // For web, convert image to base64 data URL for Replicate API
-        downloadURL = await convertImageToBase64(imageUri);
-        console.log('🔗 Using base64 data URL');
-      } else {
-        console.log('📱 Mobile platform detected - uploading to Firebase Storage');
-        // Upload image to Firebase Storage for mobile
-        console.log('🔥 Creating Firebase Storage reference...');
-        const imageRef = ref(storage, `avatars/${user.uid}/${Date.now()}.jpg`);
-        console.log('🔥 Storage reference created:', imageRef.fullPath);
-        
-        console.log('📥 Fetching image blob...');
-        const response = await fetch(imageUri);
-        console.log('📥 Fetch response status:', response.status);
-        
-        const blob = await response.blob();
-        console.log('📥 Blob created, size:', blob.size, 'bytes');
-        
-        console.log('⬆️ Uploading to Firebase Storage...');
-        await uploadBytes(imageRef, blob);
-        console.log('✅ Upload completed successfully');
-        
-        console.log('🔗 Getting download URL...');
-        downloadURL = await getDownloadURL(imageRef);
-        console.log('🔗 Download URL obtained:', downloadURL);
-      }
+      // Convert image to base64 data URL for Replicate API (works on both web and mobile)
+      const downloadURL = await convertImageToBase64(imageUri);
       
       // Generate cartoon avatar using Replicate API
-      console.log('🎨 Starting cartoon generation...');
       await generateCartoonAvatar(downloadURL);
       
     } catch (error: any) {
-      console.error('❌ Error in uploadAndGenerateAvatar:', error);
-      console.error('❌ Error details:', {
-        message: error?.message || 'Unknown error',
-        code: error?.code || 'Unknown code',
-        stack: error?.stack || 'No stack trace'
-      });
-      
       // Check if it's a CORS error
       if (error?.message?.includes('CORS') || error?.message?.includes('XMLHttpRequest')) {
         Alert.alert(
@@ -223,95 +175,40 @@ export default function AvatarScreen() {
         Alert.alert('Upload Error', `Failed to upload image: ${error?.message || 'Unknown error'}`);
       }
     } finally {
-      console.log('🔄 Setting uploading state to false');
       setUploading(false);
     }
   };
 
-  const generateCartoonAvatarWithHuggingFace = async (imageUrl: string) => {
-    console.log('🤗 Using Hugging Face AI for cartoon generation');
-    
+  const generateCartoonAvatar = async (imageUrl: string) => {
     try {
-      // Convert image to base64 for Hugging Face API
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const base64 = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.readAsDataURL(blob);
-      });
+      setGenerating(true);
       
-      console.log('🤗 Sending request to Hugging Face...');
-      
-      const hfResponse = await fetch(`${HUGGINGFACE_API_URL}/runwayml/stable-diffusion-v1-5`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${HUGGINGFACE_API_TOKEN}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          inputs: {
-            image: base64,
-            prompt: "cartoon avatar, cute character, animated style, colorful, friendly",
-            negative_prompt: "realistic, photograph, dark, scary",
-            num_inference_steps: 20,
-            guidance_scale: 7.5
-          }
-        })
-      });
-      
-      if (!hfResponse.ok) {
-        throw new Error(`Hugging Face API error: ${hfResponse.status}`);
-      }
-      
-      const result = await hfResponse.json();
-      console.log('🤗 Hugging Face response:', result);
-      
-      if (result && result.length > 0) {
-        // Convert base64 result to data URL
-        const cartoonImage = `data:image/jpeg;base64,${result[0]}`;
-        setGeneratedAvatar(cartoonImage);
-        setSelectedAvatar('generated');
-        console.log('✅ Hugging Face cartoon avatar created');
-      } else {
-        throw new Error('No image generated');
-      }
-      
-    } catch (error: any) {
-      console.error('❌ Hugging Face error:', error);
-      throw error;
-    }
-  };
-
-  const generateCartoonAvatarWithReplicate = async (imageUrl: string) => {
-    console.log('🤖 Using Replicate AI for cartoon generation');
-    
-    try {
       // Create prediction
-      console.log('🤖 Creating Replicate API prediction...');
       const requestBody = {
-        version: "tencentarc/photomaker:ddfc2b08d209f9fa8c1eca692712918bd449f695dabb4a958da31802a9570fe4",
+        version: REPLICATE_AVATAR_MODEL,
         input: {
           input_image: imageUrl,
-          prompt: "cartoon avatar, cute character, animated style, colorful, friendly",
+          prompt: "img cartoon avatar, cute character, animated style, colorful, friendly superhero",
           negative_prompt: "realistic, photograph, dark, scary",
           num_steps: 20,
           style_strength_ratio: 20,
           num_outputs: 1,
           guidance_scale: 5,
-          seed: -1,
+          seed: Math.floor(Math.random() * 100000), // Random positive integer for seed
           apply_watermark: false
         }
       };
       
-      console.log('🤖 Request body:', JSON.stringify(requestBody, null, 2));
-      console.log('🤖 Making API request to:', REPLICATE_API_URL);
+      // Use CORS proxy for web platform if enabled
+      const apiUrl = (Platform.OS === 'web' && USE_CORS_PROXY) 
+        ? `${CORS_PROXY}${REPLICATE_API_URL}`
+        : REPLICATE_API_URL;
       
       // Add timeout to prevent hanging
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
-      const response = await fetch(REPLICATE_API_URL, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Token ${REPLICATE_API_TOKEN}`,
@@ -323,33 +220,32 @@ export default function AvatarScreen() {
       
       clearTimeout(timeoutId);
 
-      console.log('🤖 API response status:', response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ API request failed:', errorText);
         throw new Error(`API request failed: ${response.status} - ${errorText}`);
       }
 
       const prediction = await response.json();
-      console.log('🤖 Prediction created:', prediction);
       
       // Poll for completion
-      console.log('⏳ Starting polling for completion...');
       let result = prediction;
       let pollCount = 0;
       const maxPolls = 60; // 60 seconds max
       
       while (result.status !== 'succeeded' && result.status !== 'failed' && pollCount < maxPolls) {
         pollCount++;
-        console.log(`⏳ Poll ${pollCount}/${maxPolls} - Status: ${result.status}`);
         
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         const statusController = new AbortController();
         const statusTimeoutId = setTimeout(() => statusController.abort(), 10000);
         
-        const statusResponse = await fetch(`${REPLICATE_API_URL}/${result.id}`, {
+        // Use CORS proxy for status checks too
+        const statusUrl = (Platform.OS === 'web' && USE_CORS_PROXY)
+          ? `${CORS_PROXY}${REPLICATE_API_URL}/${result.id}`
+          : `${REPLICATE_API_URL}/${result.id}`;
+        
+        const statusResponse = await fetch(statusUrl, {
           headers: {
             'Authorization': `Token ${REPLICATE_API_TOKEN}`,
           },
@@ -359,12 +255,10 @@ export default function AvatarScreen() {
         clearTimeout(statusTimeoutId);
         
         if (!statusResponse.ok) {
-          console.error('❌ Status check failed:', statusResponse.status);
           throw new Error(`Status check failed: ${statusResponse.status}`);
         }
         
         result = await statusResponse.json();
-        console.log(`⏳ Poll ${pollCount} result:`, result);
       }
 
       if (pollCount >= maxPolls) {
@@ -372,153 +266,26 @@ export default function AvatarScreen() {
       }
 
       if (result.status === 'succeeded' && result.output && result.output.length > 0) {
-        console.log('✅ Generation succeeded! Output:', result.output);
         setGeneratedAvatar(result.output[0]);
         setSelectedAvatar('generated');
-        console.log('✅ Avatar set successfully');
       } else {
-        console.error('❌ Generation failed:', result);
         throw new Error(`Failed to generate avatar: ${result.error || 'Unknown error'}`);
       }
-      
     } catch (error: any) {
-      console.error('❌ Replicate API error:', error);
-      throw error;
-    }
-  };
-
-  const generateCartoonAvatar = async (imageUrl: string) => {
-    console.log('🎨 Starting generateCartoonAvatar with URL:', imageUrl);
-    console.log('🤖 AI Service:', AI_SERVICE);
-    
-    try {
-      setGenerating(true);
-      console.log('🎨 Setting generating state to true');
-      
-      // Route to appropriate AI service
-      if (AI_SERVICE === 'huggingface') {
-        console.log('🤗 Using Hugging Face AI service');
-        await generateCartoonAvatarWithHuggingFace(imageUrl);
-      } else if (AI_SERVICE === 'replicate') {
-        console.log('🤖 Using Replicate AI service');
-        await generateCartoonAvatarWithReplicate(imageUrl);
+      if (error?.message?.includes('CORS') || error?.message?.includes('Failed to fetch')) {
+        Alert.alert(
+          'Network Error', 
+          'Cannot connect to avatar generation service. This might be due to network restrictions or CORS policies. Please try on a mobile device or check your internet connection.'
+        );
       } else {
-        throw new Error(`Unknown AI service: ${AI_SERVICE}. Please set AI_SERVICE to 'huggingface' or 'replicate'`);
+        Alert.alert('AI Generation Error', `Failed to generate cartoon avatar: ${error?.message || 'Unknown error'}`);
       }
-      
-    } catch (error: any) {
-      console.error('❌ Error in generateCartoonAvatar:', error);
-      console.error('❌ Error details:', {
-        message: error?.message || 'Unknown error',
-        code: error?.code || 'Unknown code',
-        stack: error?.stack || 'No stack trace'
-      });
-      
-      Alert.alert('AI Generation Error', `Failed to generate cartoon avatar: ${error?.message || 'Unknown error'}`);
     } finally {
-      console.log('🔄 Setting generating state to false');
       setGenerating(false);
     }
   };
 
-  const testFirebaseConnection = async () => {
-    console.log('🧪 Testing Firebase Storage connection...');
-    try {
-      const user = auth.currentUser;
-      if (!user) {
-        console.log('❌ No user authenticated');
-        Alert.alert('Test Failed', 'No user authenticated');
-        return;
-      }
-      
-      console.log('👤 User:', user.uid);
-      console.log('🔥 Storage instance:', storage);
-      console.log('🔥 Storage app:', storage.app);
-      
-      // Test creating a reference
-      const testRef = ref(storage, `test/${user.uid}/test.txt`);
-      console.log('🔥 Test reference created:', testRef.fullPath);
-      
-      Alert.alert('Test Success', 'Firebase Storage connection is working!');
-    } catch (error: any) {
-      console.error('❌ Firebase test failed:', error);
-      Alert.alert('Test Failed', `Firebase error: ${error?.message || 'Unknown error'}`);
-    }
-  };
-
-  const testBasicConnectivity = async () => {
-    console.log('🌐 Testing basic internet connectivity...');
-    try {
-      const response = await fetch('https://httpbin.org/get', {
-        method: 'GET',
-        mode: 'cors'
-      });
-      
-      console.log('🌐 Connectivity test result:', response.status);
-      
-      if (response.ok) {
-        Alert.alert('Connectivity OK', 'Basic internet connection is working!');
-      } else {
-        Alert.alert('Connectivity Issue', `HTTP status: ${response.status}`);
-      }
-    } catch (error: any) {
-      console.error('❌ Connectivity test failed:', error);
-      Alert.alert('Connectivity Failed', `Cannot reach internet: ${error?.message || 'Unknown error'}`);
-    }
-  };
-
-  const testReplicateAPI = async () => {
-    console.log('🧪 Testing Replicate API connection...');
-    try {
-      console.log('🤖 API Token:', REPLICATE_API_TOKEN ? 'Present' : 'Missing');
-      console.log('🤖 API URL:', REPLICATE_API_URL);
-      console.log('🔧 AI Service:', AI_SERVICE);
-      
-      // Test basic connectivity first
-      console.log('🌐 Testing basic connectivity...');
-      const connectivityTest = await fetch('https://httpbin.org/get', {
-        method: 'GET',
-        mode: 'cors'
-      });
-      console.log('🌐 Connectivity test result:', connectivityTest.status);
-      
-      if (!connectivityTest.ok) {
-        throw new Error('Basic internet connectivity failed');
-      }
-      
-      // Test Replicate API with a simple request
-      console.log('🤖 Testing Replicate API...');
-      const response = await fetch(REPLICATE_API_URL, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Token ${REPLICATE_API_TOKEN}`,
-        },
-        mode: 'cors'
-      });
-      
-      console.log('🤖 Test response status:', response.status);
-      console.log('🤖 Test response headers:', Object.fromEntries(response.headers.entries()));
-      
-      if (response.ok) {
-        Alert.alert('Test Success', 'Replicate API connection is working!');
-      } else {
-        const errorText = await response.text();
-        console.log('🤖 Error response:', errorText);
-        Alert.alert('Test Failed', `API returned status: ${response.status}\nError: ${errorText}`);
-      }
-    } catch (error: any) {
-      console.error('❌ Replicate API test failed:', error);
-      
-      if (error?.message?.includes('Failed to fetch')) {
-        Alert.alert(
-          'Network Error', 
-          `Cannot connect to Replicate API. Current AI Service: ${AI_SERVICE}.\n\nThis might be due to:\n• Network connectivity issues\n• CORS restrictions in development\n• Firewall blocking the request\n\nTry switching to a different AI service or test on a mobile device.`
-        );
-      } else {
-        Alert.alert('Test Failed', `API error: ${error?.message || 'Unknown error'}`);
-      }
-    }
-  };
+  // Debug functions removed
 
   const categories = [
     { id: 'children', label: 'Child', color: '#4F46E5' },
@@ -536,8 +303,8 @@ export default function AvatarScreen() {
         <View style={styles.section}>
           {/* Centered Title */}
           <View style={styles.centeredTitleSection}>
-            <Text style={styles.title}>Create Your Profile</Text>
-            <Text style={styles.subtitle}>Choose Your Superhero Avatar!</Text>
+            <Text style={styles.title}>Child Profile</Text>
+            <Text style={styles.subtitle}>Create your profile and choose your avatar!</Text>
           </View>
           
           {/* Personal Information */}
@@ -624,33 +391,6 @@ export default function AvatarScreen() {
             
             {/* Generate Avatar Text */}
             <Text style={styles.generateText}>Generate AI Cartoon Avatar</Text>
-            {Platform.OS === 'web' && (
-              <Text style={styles.platformNote}>
-                💡 Note: On web, images are processed directly. For best results, try on mobile!
-              </Text>
-            )}
-            
-            {/* Debug Buttons - Remove after testing */}
-            <TouchableOpacity 
-              onPress={testFirebaseConnection} 
-              style={[styles.uploadSection, { backgroundColor: '#FFE4E1', marginTop: 10 }]}
-            >
-              <Text style={[styles.uploadText, { color: '#DC143C' }]}>🧪 Test Firebase Connection</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              onPress={testReplicateAPI} 
-              style={[styles.uploadSection, { backgroundColor: '#E1F5FE', marginTop: 5 }]}
-            >
-              <Text style={[styles.uploadText, { color: '#0277BD' }]}>🤖 Test Replicate API</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              onPress={testBasicConnectivity} 
-              style={[styles.uploadSection, { backgroundColor: '#F3E5F5', marginTop: 5 }]}
-            >
-              <Text style={[styles.uploadText, { color: '#7B1FA2' }]}>🌐 Test Internet Connection</Text>
-            </TouchableOpacity>
             
             {/* Generated Avatar Display */}
             {generatedAvatar && (

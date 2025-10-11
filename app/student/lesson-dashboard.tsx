@@ -121,7 +121,7 @@ export default function LessonDashboard() {
       activeOpacity={0.8}
     >
       <LinearGradient
-        colors={['#ebddf9ff', '#fce7f3']}
+        colors={['#9fcafeff', '#aed4fcff']} //colors={["#d7e9ff", "#cfe6ff"]}
         style={styles.cardGradient}
       >
         <View style={styles.cardHeader}>
@@ -158,7 +158,7 @@ export default function LessonDashboard() {
   if (loading) {
     return (
       <LinearGradient
-        colors={['#faf5ff', '#fce7f3']}
+        colors={["#d7e9ff", "#cfe6ff"]}
         style={styles.container}
       >
         <StatusBar style="dark" />
@@ -174,7 +174,7 @@ export default function LessonDashboard() {
   if (selectedLesson) {
     return (
       <LinearGradient
-       colors={['#faf5ff', '#fce7f3']}
+       colors={["#d7e9ff", "#cfe6ff"]}
         style={styles.container}
       >
         <StatusBar style="dark" />
@@ -217,7 +217,7 @@ export default function LessonDashboard() {
             ) : hasQuiz && (
               <TouchableOpacity style={styles.quizButton} onPress={handleStartQuiz}>
                 <LinearGradient
-                  colors={['#a950a9ff', '#f87cc2ff']}
+                  colors={['#0052cc', '#0052cc']}
                   style={styles.quizButtonGradient}
                 >
                   <Text style={styles.quizButtonText}>Start Quiz</Text>
@@ -233,7 +233,7 @@ export default function LessonDashboard() {
   // Show lesson list
   return (
     <LinearGradient
-      colors={['#faf5ff', '#fce7f3']}
+      colors={["#d7e9ff", "#cfe6ff"]}
       style={styles.container}
     >
       <StatusBar style="dark" />
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#4c1d95',
+    color: '#0052cc',
     fontWeight: '600',
   },
   title: {
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   reviewButton: {
-    backgroundColor: '#a950a9ff',
+    backgroundColor: '#0052cc',
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 25,

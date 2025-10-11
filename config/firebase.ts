@@ -34,12 +34,16 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 
 // AI Service Configuration
-export const REPLICATE_API_TOKEN = 'your_replicate_token_here';
+export const REPLICATE_API_TOKEN = 'r8_SnPa1WRjXIVw9QIQ17VDSb7znUHjzQd2hqvVJ';
 export const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions';
 
-// Alternative AI Services
-export const HUGGINGFACE_API_URL = 'https://api-inference.huggingface.co/models';
-export const HUGGINGFACE_API_TOKEN = 'your_huggingface_token_here'; // You'll need to get this from Hugging Face
+// CORS Proxy for development (web only)
+export const CORS_PROXY = 'https://corsproxy.io/?';
+export const USE_CORS_PROXY = true; // Set to false for production
 
-// Service Selection
-export const AI_SERVICE = 'huggingface'; // Options: 'replicate', 'huggingface'
+// Replicate Model Configurations
+export const REPLICATE_AVATAR_MODEL = "tencentarc/photomaker:ddfc2b08d209f9fa8c1eca692712918bd449f695dabb4a958da31802a9570fe4";
+
+// Service Selection - Only using Replicate now
+export const AI_SERVICE = 'replicate';
+

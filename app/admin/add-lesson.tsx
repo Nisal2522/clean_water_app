@@ -1,12 +1,12 @@
+import { db } from '@/config/firebase';
+import { ResizeMode, Video } from 'expo-av';
+import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { addDoc, collection, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
-import { Alert, Dimensions, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, KeyboardAvoidingView, Platform } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import { Video, ResizeMode } from 'expo-av';
-import { db } from '@/config/firebase';
-import { collection, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
+import { Alert, Dimensions, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -189,7 +189,7 @@ export default function AddLesson() {
 
   return (
     <LinearGradient
-      colors={['#faf5ff', '#fce7f3']}
+      colors={["#d7e9ff", "#cfe6ff"]}
       style={styles.container}
     >
       <StatusBar style="dark" />
@@ -341,7 +341,7 @@ export default function AddLesson() {
             disabled={loading}
           >
             <LinearGradient
-              colors={['#8b5cf6', '#a78bfa']}
+              colors={['#0052cc', '#0052cc']}
               style={styles.createButtonGradient}
             >
               <Text style={styles.createButtonText}>
@@ -378,13 +378,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#4c1d95',
+    color: '#0052cc',
     fontWeight: '600',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#8b5cf6',
+    color: '#0052cc',
   },
   form: {
     gap: 20,
@@ -432,12 +432,12 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#8b5cf6',
+    borderColor: '#0052cc',
     borderStyle: 'dashed',
   },
   uploadButtonText: {
     fontSize: 16,
-    color: '#8b5cf6',
+    color: '#0052cc',
     fontWeight: '600',
   },
   videoPreview: {
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#8b5cf6',
+    color: '#0052cc',
     marginBottom: 16,
   },
   quizCard: {
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 16,
     borderWidth: 2,
-    borderColor: '#8b5cf6',
+    borderColor: '#0052cc',
     marginBottom: 16,
   },
   quizHeader: {
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
   quizTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#4c1d95',
+    color: '#0052cc',
   },
   removeButton: {
     backgroundColor: '#ef4444',
@@ -536,13 +536,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#8b5cf6',
+    borderColor: '#0052cc',
     borderStyle: 'dashed',
     marginBottom: 16,
   },
   addQuizButtonText: {
     fontSize: 16,
-    color: '#8b5cf6',
+    color: '#0052cc',
     fontWeight: 'bold',
   },
   createQuizButton: {

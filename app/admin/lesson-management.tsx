@@ -29,7 +29,7 @@ export default function LessonManagement() {
 
   return (
     <LinearGradient
-      colors={['#faf5ff', '#fce7f3']}
+      colors={["#d7e9ff", "#cfe6ff"]}
       style={styles.container}
     >
       <StatusBar style="dark" />
@@ -106,13 +106,13 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: '#4c1d95',
+    color: '#0052cc',
     fontWeight: '600',
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#8b5cf6',
+    color: '#0052cc',
     marginBottom: 8,
   },
   subtitle: {

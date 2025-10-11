@@ -23,6 +23,7 @@ export default function RootLayout() {
         <Stack.Screen name="register/register" options={{ headerShown: false }} />
         <Stack.Screen name="child_profile/child_profile" options={{ headerShown: false }} />
         <Stack.Screen name="student/dashboard" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="handwashing-hero" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="student/lesson-dashboard" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="student/lesson-quiz-page" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="student/games-dashboard" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />

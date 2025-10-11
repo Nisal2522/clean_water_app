@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -14,7 +15,6 @@ import {
   View,
 } from 'react-native';
 import { auth, db } from '../../config/firebase';
-import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const ITEM_SIZE = 60;
@@ -80,8 +80,8 @@ export default function CatchWaterDropsGame() {
   const [showResumeDialog, setShowResumeDialog] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [lastLevelScore, setLastLevelScore] = useState(0);
-  const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
-  const spawnIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const gameLoopRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const spawnIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const itemIdCounter = useRef(0);
 
   useEffect(() => {
@@ -398,7 +398,7 @@ export default function CatchWaterDropsGame() {
     const score = lastLevelScore;
     return (
       <LinearGradient
-        colors={['#a78bfa', '#c4b5fd', '#e9d5ff']}
+        colors={['#e6f7ff', '#cfe6ff']}
         style={styles.container}
       >
         <StatusBar style="dark" />
@@ -433,7 +433,7 @@ export default function CatchWaterDropsGame() {
 
               <TouchableOpacity style={styles.backButtonResult} onPress={handleBackToHome}>
                 <LinearGradient
-                  colors={['#a78bfa', '#c4b5fd']}
+                  colors={['#0f62fe', '#0052cc']}
                   style={styles.backButtonGradient}
                 >
                   <Text style={styles.backButtonText}>Home</Text>
@@ -442,7 +442,7 @@ export default function CatchWaterDropsGame() {
 
               <TouchableOpacity style={styles.nextButton} onPress={handleNextLevel}>
                 <LinearGradient
-                  colors={['#8b5cf6', '#a78bfa']}
+                  colors={['#0f62fe', '#0052cc']}
                   style={styles.nextButtonGradient}
                 >
                   <Text style={styles.nextButtonText}>Next Level ➜</Text>
@@ -460,7 +460,7 @@ export default function CatchWaterDropsGame() {
       <StatusBar style="light" />
       
       <LinearGradient
-        colors={['#a78bfa', '#c4b5fd', '#e9d5ff']}
+        colors={['#e6f7ff', '#cfe6ff']}
         style={styles.header}
       >
         <TouchableOpacity onPress={handleBackPress} >
@@ -492,7 +492,7 @@ export default function CatchWaterDropsGame() {
       </LinearGradient>
 
       <LinearGradient
-        colors={['#faf5ff', '#fce7f3']}
+        colors={['#e6f7ff', '#cfe6ff']}
         style={styles.gameArea}
       >
         {!gameState.isPlaying ? (
@@ -635,7 +635,7 @@ const styles = StyleSheet.create({
   },
   backIcon: {
     fontSize: 16,
-    color: '#5029acff',
+    color: '#0052cc',
     fontWeight: '600',
   },
   headerInfo: {
@@ -649,14 +649,14 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: '#5029acff',
+    color: '#0f62fe',
     fontWeight: '600',
     marginBottom: 4,
   },
   statValue: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#2b1460ff',
+    color: '#003a8c',
   },
   pauseButton: {
     width: 40,
@@ -684,19 +684,19 @@ const styles = StyleSheet.create({
   gameTitle: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#4c1d95',
+    color: '#0f62fe',
     marginBottom: 20,
     textAlign: 'center',
   },
   gameInstructions: {
     fontSize: 16,
-    color: '#5b21b6',
+    color: '#1e90ff',
     textAlign: 'center',
     marginBottom: 30,
     lineHeight: 24,
   },
   startButton: {
-    backgroundColor: '#8b5cf6',
+    backgroundColor: '#0052cc',
     paddingVertical: 16,
     paddingHorizontal: 48,
     borderRadius: 30,
@@ -715,10 +715,10 @@ const styles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: '#6d28d9',
+    borderColor: '#0f62fe',
   },
   secondaryButtonText: {
-    color: '#6d28d9',
+    color: '#0f62fe',
   },
   fallingItem: {
     position: 'absolute',
@@ -744,16 +744,18 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex:0,
     height: CATCH_ZONE_HEIGHT,
-    backgroundColor: 'rgba(167, 139, 250, 0.12)',
+    backgroundColor: 'rgba(14, 110, 255, 0.08)',
     borderTopWidth: 2,
-    borderTopColor: 'rgba(167, 139, 250, 0.25)',
+    borderTopColor: 'rgba(14, 110, 255, 0.18)',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
   catchZoneText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#6d28d9',
+    color: '#0f62fe',
     opacity: 0.6,
   },
   modalOverlay: {
@@ -799,12 +801,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalButtonPrimary: {
-    backgroundColor: '#8b5cf6',
+    backgroundColor: '#0f62fe',
   },
   modalButtonSecondary: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: '#b438fbff',
+    borderColor: '#0f62fe',
   },
   modalButtonTextPrimary: {
     fontSize: 16,
@@ -814,7 +816,7 @@ const styles = StyleSheet.create({
   modalButtonTextSecondary: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#b438fbff',
+    color: '#0052cc',
   },
   /* Results screen styles */
   resultsContainer: {
@@ -877,13 +879,13 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   retakeButton: {
-    backgroundColor: '#eef2ff',
+    backgroundColor: '#e6f7ff',
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
   },
   retakeButtonText: {
-    color: '#5b21b6',
+    color: '#0f62fe',
     fontWeight: '700',
   },
   backButtonResult: {
@@ -897,7 +899,7 @@ const styles = StyleSheet.create({
   },
 backButtonText: {
     fontSize: 16,
-    color: '#4c1d95',
+  color: '#0f62fe',
     fontWeight: '600',
   },
   

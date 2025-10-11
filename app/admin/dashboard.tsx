@@ -1,11 +1,11 @@
+import { auth, db } from '@/config/firebase';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
-import { Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
-import { auth, db } from '@/config/firebase';
 import { signOut } from 'firebase/auth';
 import { collection, getDocs } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -61,15 +61,16 @@ export default function AdminDashboard() {
 
   return (
     <LinearGradient
-      colors={['#faf5ff', '#fce7f3']}
+      colors={["#d7e9ff", "#cfe6ff"]}
       style={styles.container}
     >
       <StatusBar style="dark" />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.welcomeText}>Public Health Dashboard</Text>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.welcomeText}>Public Health</Text>
+            <Text style={styles.welcomeText}>Dashboard</Text>
             <Text style={styles.subtitle}>Hygiene Heroes Management</Text>
           </View>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -170,18 +171,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 30,
   },
+  headerTextContainer: {
+    flex: 1,
+  },
   welcomeText: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#8b5cf6',
-    marginBottom: 4,
+    color: '#0052cc',
+    marginBottom: 0,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    fontWeight: '600',
+    color: '#0052cc',
   },
   logoutButton: {
-    backgroundColor: 'rgba(235, 3, 3, 0.2)',
+    backgroundColor: 'rgba(255, 62, 62, 0.71)',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
@@ -229,7 +234,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#8b5cf6',
+    color: '#0052cc',
     marginBottom: 16,
   },
   actionButton: {

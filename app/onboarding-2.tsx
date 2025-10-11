@@ -1,9 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { LinearGradient } from 'expo-linear-gradient';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import React from 'react';
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -12,256 +11,242 @@ const isSmallScreen = height < 700;
 const isMediumScreen = height >= 700 && height < 800;
 const isLargeScreen = height >= 800;
 
-// Responsive sizes
-const imageSize = isSmallScreen ? 120 : isMediumScreen ? 140 : 160;
-const titleFontSize = isSmallScreen ? 20 : isMediumScreen ? 22 : 24;
-const subtitleFontSize = isSmallScreen ? 14 : isMediumScreen ? 15 : 16;
-const habitFontSize = isSmallScreen ? 13 : isMediumScreen ? 14 : 16;
-
 export default function OnboardingScreen2() {
   const handleNext = () => {
     router.push('/onboarding-3');
   };
 
-  const habits = [
-    "Wash hands for 20 seconds",
-    "Brush teeth twice daily", 
-    "Take regular baths",
-    "Keep nails clean"
-  ];
+  const handleSkip = () => {
+    router.back();
+  };
 
   return (
-    <LinearGradient
-      colors={['#faf5ff', '#fce7f3']}
-      style={styles.container}
-    >
-      <StatusBar style="dark" />
+    <View style={styles.wrapper}>
+      <LinearGradient
+        colors={["#d7e9ff", "#cfe6ff"]}
+        style={styles.container}
+      >
+        <StatusBar style="dark" />
       
-      {/* Status Bar Space */}
-      <View style={styles.statusBar} />
+        {/* Background bubbles */}
+        <View style={[styles.bubble, styles.bubble1]} />
+        <View style={[styles.bubble, styles.bubble2]} />
+        <View style={[styles.bubble, styles.bubble3]} />
+        <View style={[styles.bubble, styles.bubble4]} />
+        <View style={[styles.bubble, styles.bubble5]} />
       
       {/* Main Content */}
       <View style={styles.mainContent}>
         <View style={styles.contentWrapper}>
-          {/* Hero Image */}
-          <View style={styles.imageContainer}>
-            <View style={[styles.imageWrapper, { width: imageSize, height: imageSize, borderRadius: imageSize / 2 }]}>
-              <Image
-                source={require('@/assets/images/clean.png')}
-                style={[styles.heroImage, { borderRadius: (imageSize - 16) / 2 }]}
-                resizeMode="cover"
-              />
-            </View>
-            {/* Decorative elements */}
-            <View style={styles.decorativeElement1} />
-            <View style={styles.decorativeElement2} />
+          {/* Title */}
+          <Text style={styles.title}>Be a Hygiene Hero</Text>
+
+          {/* Illustration area */}
+          <View style={styles.illustrationContainer}>
+            {/* Replace with your actual illustration image */}
+            <Image
+              source={require('@/assets/images/onboarding2.png')}
+              style={styles.illustration}
+              resizeMode="contain"
+              onError={(error) => console.log('Image load error:', error.nativeEvent.error)}
+            />
+            
+          </View>
+        
+
+          {/* Description */}
+          <View style={styles.descriptionContainer}>
+            <Text style={styles.description}>
+              Wash, splash, and stay strong.{'\n'}
+              Practice <Text style={styles.boldText}>health safety</Text> and unlock{'\n'}
+              rewards!
+            </Text>
           </View>
 
-          {/* Content */}
-          <View style={styles.textContainer}>
-            <Text style={[styles.title, { fontSize: titleFontSize }]}>
-              Learn <Text style={styles.titleAccent}>Super Habits!</Text>
-            </Text>
-            
-            <Text style={[styles.subtitle, { fontSize: subtitleFontSize }]}>
-              Every superhero needs amazing powers! Learn these special hygiene habits 
-              to become stronger and healthier every day.
-            </Text>
-
-            {/* Habits List */}
-            <View style={styles.habitsContainer}>
-              {habits.map((habit, index) => (
-                <View key={index} style={styles.habitItem}>
-                  <View style={styles.checkmarkContainer}>
-                    <Text style={styles.checkmark}>✓</Text>
-                  </View>
-                  <Text style={[styles.habitText, { fontSize: habitFontSize }]}>{habit}</Text>
-                </View>
-              ))}
-            </View>
-
-            {/* Progress indicators */}
-            <View style={styles.progressContainer}>
-              <View style={styles.progressDotInactive} />
-              <View style={styles.progressDot} />
-              <View style={styles.progressDotInactive} />
-            </View>
+          {/* Pagination dots */}
+          <View style={styles.paginationContainer}>
+            <View style={styles.dot} />
+            <View style={[styles.dot, styles.activeDot]} />
+            <View style={styles.dot} />
           </View>
         </View>
       </View>
 
-      {/* Next Button - Fixed at bottom */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleNext}>
-          <LinearGradient
-            colors={['#8b5cf6', '#ec4899']}
-            style={styles.buttonGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-          >
-            <Text style={styles.buttonText}>I'm Ready to Be a Hero! →</Text>
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+          <LinearGradient colors={["#4f94e6", "#2f6fd6"]} style={styles.nextGradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+            <Text style={styles.nextText}>Next</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>
-    </LinearGradient>
+      </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
   container: {
     flex: 1,
+    alignItems: 'center',
     width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
-    minHeight: height,
   },
-  statusBar: {
-    height: 48,
+  bubble: {
+    position: 'absolute',
+    borderRadius: 100,
+    backgroundColor: 'rgba(135, 185, 224, 0.4)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  bubble1: {
+    width: 80,
+    height: 80,
+    top: 150,
+    left: 30,
+  },
+  bubble2: {
+    width: 30,
+    height: 30,
+    top: 160,
+    left: 150,
+  },
+  bubble3: {
+    width: 40,
+    height: 40,
+    top: 180,
+    right: 40,
+  },
+  bubble4: {
+    width: 50,
+    height: 50,
+    top: 240,
+    left: 50,
+  },
+  bubble5: {
+    width: 60,
+    height: 60,
+    top: 210,
+    right: 20,
   },
   mainContent: {
     flex: 1,
-    justifyContent: 'flex-start',
-    paddingHorizontal: isSmallScreen ? 20 : 24,
-    paddingTop: isSmallScreen ? 40 : 60,
-    paddingBottom: isSmallScreen ? 20 : 32,
+    alignItems: 'center',
+    paddingTop: isSmallScreen ? 60 : 80,
+    paddingHorizontal: 20,
   },
   contentWrapper: {
-    alignItems: 'center',
-  },
-  imageContainer: {
-    position: 'relative',
-    marginBottom: isSmallScreen ? 16 : 20,
-  },
-  imageWrapper: {
-    backgroundColor: '#8b5cf6',
-    padding: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  heroImage: {
     width: '100%',
-    height: '100%',
-  },
-  decorativeElement1: {
-    position: 'absolute',
-    top: -4,
-    left: -4,
-    width: 28,
-    height: 28,
-    backgroundColor: '#fb923c',
-    borderRadius: 14,
-  },
-  decorativeElement2: {
-    position: 'absolute',
-    bottom: -4,
-    right: -4,
-    width: 24,
-    height: 24,
-    backgroundColor: '#a855f7',
-    borderRadius: 12,
-  },
-  textContainer: {
     alignItems: 'center',
-    paddingHorizontal: isSmallScreen ? 4 : 8,
   },
   title: {
-    fontWeight: 'bold',
-    color: '#8b5cf6',
+    fontSize: isSmallScreen ? 28 : 32,
+    fontWeight: '800',
+    color: '#0f4ea8',
     textAlign: 'center',
-    lineHeight: isSmallScreen ? 26 : isMediumScreen ? 28 : 32,
-    marginBottom: isSmallScreen ? 12 : 16,
+    marginBottom: isSmallScreen ? 30 : 40,
+    lineHeight: 40,
   },
-  titleAccent: {
-    color: '#ec4899',
-  },
-  subtitle: {
-    color: '#6b7280',
-    textAlign: 'center',
-    lineHeight: isSmallScreen ? 20 : isMediumScreen ? 22 : 24,
-    marginBottom: isSmallScreen ? 16 : 20,
-  },
-  habitsContainer: {
-    width: '100%',
-    marginBottom: isSmallScreen ? 16 : 20,
-  },
-  habitItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    paddingHorizontal: isSmallScreen ? 12 : 16,
-    paddingVertical: isSmallScreen ? 10 : 12,
-    borderRadius: 8,
-    marginBottom: isSmallScreen ? 6 : 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  checkmarkContainer: {
-    width: 20,
-    height: 20,
-    backgroundColor: '#8b5cf6',
-    borderRadius: 10,
+illustrationContainer: {
+    width: isSmallScreen ? 250 : 300,
+    height: isSmallScreen ? 250 : 300,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginVertical: 20,
+    borderRadius: (isSmallScreen ? 250 : 200) / 2, 
+    overflow: 'hidden', // 
+    backgroundColor: 'rgba(255, 255, 255, 0.3)', 
   },
-  checkmark: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: 'bold',
+  illustration: {
+    width: '90%',
+    height: '90%',
   },
-  habitText: {
-    fontSize: 14,
-    color: '#374151',
-  },
-  progressContainer: {
-    flexDirection: 'row',
+  illustrationPlaceholder: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 12,
   },
-  progressDot: {
-    width: 8,
-    height: 8,
-    backgroundColor: '#8b5cf6',
-    borderRadius: 4,
-    marginHorizontal: 4,
+  illustrationText: {
+    fontSize: 80,
+    textAlign: 'center',
   },
-  progressDotInactive: {
-    width: 8,
-    height: 8,
-    backgroundColor: '#d1d5db',
-    borderRadius: 4,
-    marginHorizontal: 4,
+  descriptionContainer: {
+    marginBottom: 30,
+    paddingHorizontal: 20,
   },
-  buttonContainer: {
-    paddingHorizontal: isSmallScreen ? 20 : 24,
-    paddingBottom: isSmallScreen ? 80 : 120,
-  },
-  button: {
-    width: '100%',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  buttonGradient: {
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: 'white',
+  description: {
     fontSize: 16,
+    color: '#4b5563',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  boldText: {
     fontWeight: 'bold',
+    color: '#0f4ea8',
+  },
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 10,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#41cae2ff',
+    marginHorizontal: 6,
+  },
+  activeDot: {
+    backgroundColor: '#0f4ea8',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  bottomNav: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    paddingBottom: 44,
+  },
+  skipButton: {
+    backgroundColor: '#ffffff',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  skipText: {
+    color: '#0f4ea8',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  nextButton: {
+    width: 96,
+    borderRadius: 24,
+    overflow: 'hidden',
+  },
+  nextGradient: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nextText: {
+    color: 'white',
+    fontWeight: '700',
+    fontSize: 16,
   },
 });

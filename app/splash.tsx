@@ -1,23 +1,31 @@
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
-import { Dimensions, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, StyleSheet, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
+const isSmallScreen = height < 700;
+const isMediumScreen = height >= 700 && height < 800;
+const logoSize = isSmallScreen ? 200 : isMediumScreen ? 240 : 280;
+
 export default function SplashScreen() {
-  useEffect(() => {
+  const pathname = usePathname();
+   useEffect(() => {
     const timer = setTimeout(() => {
       router.replace('/onboarding');
     }, 2000);
-    
     return () => clearTimeout(timer);
-  }, []);
+  }, [pathname]);
 
   return (
     <View style={styles.container}>
-      <StatusBar style="light" />
-      <Text style={styles.appName}>Hygiene Heroes</Text>
+      <StatusBar style="dark" />
+      <Image
+        source={require('@/assets/images/logo2.png')}
+        style={[styles.logo, { width: logoSize, height: logoSize }]}
+        resizeMode="contain"
+      />
     </View>
   );
 }
@@ -25,19 +33,13 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffb0e3ff',
+    backgroundColor: '#cfe6ff',
     justifyContent: 'center',
     alignItems: 'center',
     width: width,
     height: height,
   },
-  appName: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.3)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+  logo: {
+    marginBottom: 20,
   },
 });

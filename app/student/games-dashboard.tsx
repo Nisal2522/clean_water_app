@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { push } from 'expo-router/build/global-state/routing';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
@@ -16,12 +17,12 @@ export default function GamingDashboard() {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'learning'>('all');
 
   const handlePlayGame = (gameName: string) => {
-    Alert.alert('Coming Soon', `${gameName} will be available soon!`);
+    // push('/handwashing-hero');
   };
 
   return (
     <LinearGradient
-      colors={['#faf5ff', '#fce7f3']}
+      colors={["#d7e9ff", "#cfe6ff"]}
       style={styles.container}
     >
       <StatusBar style="dark" />
@@ -55,7 +56,7 @@ export default function GamingDashboard() {
               <Text style={styles.gameDescription}>Learn handwashing with interactive fun</Text>
               <TouchableOpacity
                 style={styles.playButton}
-                onPress={() => handlePlayGame('Handwashing Hero')}
+                onPress={() => router.push('/handwashing-hero')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </TouchableOpacity>
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
   },
     backButtonText: {
     fontSize: 16,
-    color: '#4c1d95',
+    color: '#0052cc',
     fontWeight: '600',
   },
   backButton: {
