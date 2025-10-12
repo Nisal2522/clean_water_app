@@ -1,29 +1,58 @@
+import { signIn } from '@/config/auth';
+import { auth, db } from '@/config/firebase';
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { doc, getDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { Alert, Dimensions, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive dimensions - Optimized for Samsung A04 and small screens
+// Responsive dimensions
 const isSmallScreen = height < 600;
 const isMediumScreen = height >= 600 && height < 700;
 const isLargeScreen = height >= 700;
 
-// Responsive logo sizes - Optimized for Samsung A04
-const logoWidth = isSmallScreen ? 160 : isMediumScreen ? 180 : 200;
-const logoHeight = isSmallScreen ? 80 : isMediumScreen ? 90 : 100;
+// Responsive logo sizes
+const logoWidth = isSmallScreen ? 100 : isMediumScreen ? 120 : 140;
+const logoHeight = isSmallScreen ? 100 : isMediumScreen ? 120 : 140;
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    if (email && password) {
-      router.push('/avatar_section');
-    } else {
+  const handleLogin = async () => {
+    if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+    try {
+      setLoading(true);
+      const { user, role } = await signIn(email, password);
+      
+      // Route based on role
+      if (role === 'admin') {
+        router.push('/admin/dashboard' as Href);
+      } else {
+        // Check if student has a child profile
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userData = userDoc.data();
+        
+        if (userData?.childProfile) {
+          // Profile exists, go to student dashboard
+          router.push('/student/dashboard' as Href);
+        } else {
+          // No profile, go to create profile
+          router.push('/child_profile/child_profile' as Href);
+        }
+      }
+    } catch (e: any) {
+      const message = e?.message || 'Sign in failed. Please try again.';
+      Alert.alert('Sign in error', message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,63 +62,67 @@ export default function LoginScreen() {
 
   return (
     <LinearGradient
-      colors={['#faf5ff', '#fce7f3']}
+      colors={['#a8d5ff', '#b8e0ff']}
       style={styles.container}
     >
       <StatusBar style="dark" />
       <View style={styles.content}>
-        <View style={styles.header}>
-          {/* Logo above Welcome Back text */}
-          <View style={styles.topLogoContainer}>
-            <Image 
-              source={require('@/assets/images/logo2.png')} 
-              style={[styles.topLogo, { width: logoWidth, height: logoHeight }]}
-              resizeMode="contain"
-            />
-          </View>
-          
-          <Text style={styles.title}>Welcome Back!</Text>
-          <Text style={styles.subtitle}>Sign in to continue your hygiene journey</Text>
+        {/* Logo and Branding */}
+        <View style={styles.brandingContainer}>
+          <Image 
+            source={require('@/assets/images/logo2.png')} 
+            style={[styles.logo, { width: logoWidth, height: logoHeight }]}
+            resizeMode="contain"
+          />
+          <Text style={styles.brandTitle}>Hygiene Heroes</Text>
+          <Text style={styles.brandSubtitle}>Keep clean, stay healthy!</Text>
         </View>
 
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Enter your email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
+        {/* Form Card */}
+        <View style={styles.formCard}>
+          <Text style={styles.welcomeTitle}>Welcome Back</Text>
+
+          <View style={styles.form}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Username</Text>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter your username"
+                placeholderTextColor="#999"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Password</Text>
+              <TextInput
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Enter your password"
+                placeholderTextColor="#999"
+                secureTextEntry
+              />
+            </View>
+
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin} disabled={loading}>
+              <LinearGradient
+                colors={['#0052cc', '#003d99']}
+                style={styles.loginButtonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Text style={styles.loginButtonText}>{loading ? 'Signing in…' : 'Sign In'}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+              <Text style={styles.signUpButtonText}>Don't have account? <Text style={styles.signUpLink}>Register</Text></Text>
+            </TouchableOpacity>
           </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Enter your password"
-              secureTextEntry
-            />
-          </View>
-
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <LinearGradient
-              colors={['#8b5cf6', '#ec4899']}
-              style={styles.loginButtonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-            >
-              <Text style={styles.loginButtonText}>Sign In</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-            <Text style={styles.signUpButtonText}>Don't have an account? Sign Up</Text>
-          </TouchableOpacity>
         </View>
       </View>
     </LinearGradient>
@@ -105,30 +138,46 @@ const styles = StyleSheet.create({
   },
   content: {
     width: '100%',
-    maxWidth: 320,
-  },
-  header: {
+    maxWidth: 360,
     alignItems: 'center',
-    marginBottom: 40,
   },
-  topLogoContainer: {
+  brandingContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: isSmallScreen ? 24 : 32,
   },
-  topLogo: {
-    // Size is set dynamically via props
+  logo: {
+    marginBottom: 16,
   },
-  title: {
+  brandTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#8b5cf6',
+    color: '#000',
     textAlign: 'center',
     marginBottom: 8,
   },
-  subtitle: {
+  brandSubtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#555',
     textAlign: 'center',
+  },
+  formCard: {
+    width: '100%',
+    backgroundColor: 'white',
+    borderRadius: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  welcomeTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
+    marginBottom: 28,
   },
   form: {
     width: '100%',
@@ -143,46 +192,46 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: 'white',
+    backgroundColor: '#f9f9f9',
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    color: '#333',
   },
   loginButton: {
     borderRadius: 12,
+    marginTop: 8,
     marginBottom: 16,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowColor: '#0052cc',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   loginButtonGradient: {
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
   },
   loginButtonText: {
     color: 'white',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
     textAlign: 'center',
   },
   signUpButton: {
     paddingVertical: 12,
   },
   signUpButtonText: {
-    color: '#8b5cf6',
-    fontSize: 16,
+    color: '#666',
+    fontSize: 14,
     textAlign: 'center',
-    fontWeight: '500',
+  },
+  signUpLink: {
+    color: '#0052cc',
+    fontWeight: '600',
   },
 });

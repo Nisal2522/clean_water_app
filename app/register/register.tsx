@@ -1,21 +1,18 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, TextInput, Alert } from 'react-native';
-import { router } from 'expo-router';
+import { signUp } from '@/config/auth';
+import { Href, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { LinearGradient } from 'expo-linear-gradient';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import React, { useState } from 'react';
+import { Alert, Dimensions, Image, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive dimensions - Optimized for Samsung A04 and small screens
 const isSmallScreen = height < 600;
 const isMediumScreen = height >= 600 && height < 700;
 const isLargeScreen = height >= 700;
 
-// Responsive sizes - Optimized for Samsung A04
-const titleFontSize = isSmallScreen ? 16 : isMediumScreen ? 18 : 20;
-const subtitleFontSize = isSmallScreen ? 11 : isMediumScreen ? 12 : 13;
-const inputFontSize = isSmallScreen ? 13 : isMediumScreen ? 14 : 15;
+const titleFontSize = 28;
+const subtitleFontSize = 16;
+const inputFontSize = 15;
 
 export default function RegisterScreen() {
   const [formData, setFormData] = useState({
@@ -24,6 +21,8 @@ export default function RegisterScreen() {
     password: '',
     confirmPassword: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -32,7 +31,7 @@ export default function RegisterScreen() {
     }));
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -48,79 +47,77 @@ export default function RegisterScreen() {
       return;
     }
 
-    // Here you would typically make an API call to register the user
-    Alert.alert('Success', 'Registration successful!', [
-      { text: 'OK', onPress: () => router.push('/login/login') }
-    ]);
+    try {
+      setLoading(true);
+      await signUp(formData.email, formData.password, formData.username);
+      
+      // Show success message
+      setSuccess(true);
+      
+      // For Android, also show a toast
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('Registered successfully', ToastAndroid.SHORT);
+      }
+      
+      // Optional: Auto-navigate to login after a delay
+      // setTimeout(() => {
+      //   router.replace('/login/login');
+      // }, 3000);
+      
+    } catch (e: any) {
+      const message = e?.message || 'Registration failed. Please try again.';
+      Alert.alert('Sign up error', message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBackToLogin = () => {
-    router.push('/login/login');
+    router.push('/login/login' as Href);
   };
 
   return (
-    <LinearGradient
-      colors={['#faf5ff', '#fce7f3']}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <StatusBar style="dark" />
-      
-      {/* Status Bar Space */}
-      <View style={styles.statusBar} />
-      
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleBackToLogin}>
-          <IconSymbol name="chevron.left" size={20} color="#8b5cf6" />
-          <Text style={styles.backText}>Back to Login</Text>
-        </TouchableOpacity>
-      </View>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Image source={require('@/assets/images/logo2.png')} style={styles.logo} resizeMode="contain" />
+        <Text style={styles.appTitle}>Hygiene Heroes</Text>
+        <Text style={styles.appSubtitle}>Keep clean, stay healthy!</Text>
 
-      {/* Main Content */}
-      <View style={styles.mainContent}>
-        <View style={styles.contentWrapper}>
-          {/* Hero Section */}
-          <View style={styles.heroSection}>
-            <Text style={[styles.title, { fontSize: titleFontSize }]}>
-              Join the <Text style={styles.titleAccent}>Hero Squad!</Text>
-            </Text>
-            <Text style={[styles.subtitle, { fontSize: subtitleFontSize }]}>
-              Create your account to start your hygiene adventure
-            </Text>
-          </View>
-
-          {/* Register Card */}
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>Create Account</Text>
-              <Text style={styles.cardDescription}>
-                Fill in your details to become a Hygiene Hero
+        <View style={styles.card}>
+          {success ? (
+            <View style={styles.successContainer}>
+              <Text style={styles.successTitle}>Registration Successful!</Text>
+              <Text style={styles.successMessage}>
+                Your account has been created. Please log in with your credentials to continue.
               </Text>
+              <TouchableOpacity 
+                style={styles.loginButton} 
+                onPress={() => router.replace('/login/login' as Href)}
+              >
+                <Text style={styles.loginButtonText}>Go to Login</Text>
+              </TouchableOpacity>
             </View>
-            
-            <View style={styles.cardContent}>
-              <View style={styles.inputContainer}>
-                <View style={styles.labelContainer}>
-                  <IconSymbol name="person" size={16} color="#8b5cf6" />
-                  <Text style={styles.label}>Username</Text>
-                </View>
+          ) : (
+            <>
+              <Text style={styles.cardHeading}>Register</Text>
+
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Name</Text>
                 <TextInput
                   style={[styles.textInput, { fontSize: inputFontSize }]}
-                  placeholder="Choose a hero name"
+                  placeholder="Enter your name here"
                   value={formData.username}
                   onChangeText={(value) => handleInputChange('username', value)}
                   placeholderTextColor="#9ca3af"
                 />
               </View>
 
-              <View style={styles.inputContainer}>
-                <View style={styles.labelContainer}>
-                  <IconSymbol name="envelope" size={16} color="#ec4899" />
-                  <Text style={styles.label}>Email</Text>
-                </View>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Email</Text>
                 <TextInput
                   style={[styles.textInput, { fontSize: inputFontSize }]}
-                  placeholder="hero@example.com"
+                  placeholder="Enter your email here"
                   value={formData.email}
                   onChangeText={(value) => handleInputChange('email', value)}
                   keyboardType="email-address"
@@ -129,14 +126,11 @@ export default function RegisterScreen() {
                 />
               </View>
 
-              <View style={styles.inputContainer}>
-                <View style={styles.labelContainer}>
-                  <IconSymbol name="lock" size={16} color="#8b5cf6" />
-                  <Text style={styles.label}>Password</Text>
-                </View>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Password</Text>
                 <TextInput
                   style={[styles.textInput, { fontSize: inputFontSize }]}
-                  placeholder="Create a strong password"
+                  placeholder="Enter your password here"
                   value={formData.password}
                   onChangeText={(value) => handleInputChange('password', value)}
                   secureTextEntry
@@ -144,181 +138,147 @@ export default function RegisterScreen() {
                 />
               </View>
 
-              <View style={styles.inputContainer}>
-                <View style={styles.labelContainer}>
-                  <IconSymbol name="lock" size={16} color="#ec4899" />
-                  <Text style={styles.label}>Confirm Password</Text>
-                </View>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Confirm Password</Text>
                 <TextInput
                   style={[styles.textInput, { fontSize: inputFontSize }]}
-                  placeholder="Confirm your password"
+                  placeholder="Confirm your password here"
                   value={formData.confirmPassword}
                   onChangeText={(value) => handleInputChange('confirmPassword', value)}
                   secureTextEntry
                   placeholderTextColor="#9ca3af"
                 />
               </View>
-            </View>
-          </View>
-        </View>
-      </View>
 
-      {/* Register Button */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-          <LinearGradient
-            colors={['#8b5cf6', '#ec4899']}
-            style={styles.buttonGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-          >
-            <Text style={styles.buttonText}>Create My Hero Account!</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
-    </LinearGradient>
+              <TouchableOpacity style={styles.registerButton} onPress={handleRegister} disabled={loading}>
+                <Text style={styles.registerButtonText}>{loading ? 'Registering…' : 'Register'}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleBackToLogin} style={styles.loginLinkContainer}>
+                <Text style={styles.loginLink}>Already have account? Sign in</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
-    minHeight: height,
-  },
-  statusBar: {
-    height: 48,
-  },
-  header: {
-    paddingHorizontal: isSmallScreen ? 12 : 16,
-    paddingVertical: isSmallScreen ? 8 : 12,
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: 'rgba(139, 92, 246, 0.1)',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#8b5cf6',
-    alignSelf: 'flex-start',
-  },
-  backText: {
-    fontSize: 14,
-    color: '#8b5cf6',
-    marginLeft: 6,
-    fontWeight: '500',
-  },
-  mainContent: {
-    flex: 1,
-    paddingHorizontal: isSmallScreen ? 12 : 16,
-    paddingTop: isSmallScreen ? 12 : 20,
-  },
-  contentWrapper: {
+    backgroundColor: '#C9D9F8',
     alignItems: 'center',
   },
-  heroSection: {
+  scroll: {
     alignItems: 'center',
-    marginBottom: isSmallScreen ? 12 : 16,
+    paddingVertical: 40,
+    paddingHorizontal: 16,
   },
-  title: {
-    fontWeight: 'bold',
-    color: '#8b5cf6',
-    textAlign: 'center',
-    marginBottom: isSmallScreen ? 4 : 6,
+  logo: {
+    width: 140,
+    height: 140,
+    marginBottom: 12,
   },
-  titleAccent: {
-    color: '#ec4899',
+  appTitle: {
+    fontSize: titleFontSize,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 6,
   },
-  subtitle: {
-    color: '#6b7280',
-    textAlign: 'center',
-    lineHeight: isSmallScreen ? 18 : 20,
+  appSubtitle: {
+    fontSize: subtitleFontSize,
+    color: '#374151',
+    marginBottom: 20,
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderRadius: 16,
     width: '100%',
+    maxWidth: 360,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
-    borderWidth: 0,
   },
-  cardHeader: {
-    paddingHorizontal: isSmallScreen ? 12 : 16,
-    paddingTop: isSmallScreen ? 12 : 16,
-    paddingBottom: isSmallScreen ? 6 : 8,
-    alignItems: 'center',
+  cardHeading: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: 16,
   },
-  cardTitle: {
-    fontSize: isSmallScreen ? 16 : 18,
-    fontWeight: 'bold',
-    color: '#374151',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  cardDescription: {
-    fontSize: isSmallScreen ? 12 : 13,
-    color: '#6b7280',
-    textAlign: 'center',
-  },
-  cardContent: {
-    paddingHorizontal: isSmallScreen ? 12 : 16,
-    paddingBottom: isSmallScreen ? 12 : 16,
-  },
-  inputContainer: {
-    marginBottom: isSmallScreen ? 12 : 16,
-  },
-  labelContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
+  fieldGroup: {
+    marginBottom: 14,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
-    marginLeft: 8,
+    color: '#111827',
+    marginBottom: 6,
   },
   textInput: {
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: isSmallScreen ? 10 : 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  buttonContainer: {
-    paddingHorizontal: isSmallScreen ? 12 : 16,
-    paddingBottom: isSmallScreen ? 40 : 60,
+    borderColor: '#E5E7EB',
   },
   registerButton: {
-    width: '100%',
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  buttonGradient: {
-    paddingVertical: 16,
-    borderRadius: 12,
+    marginTop: 8,
+    backgroundColor: '#0B5ED7',
+    borderRadius: 10,
+    paddingVertical: 14,
     alignItems: 'center',
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
+  registerButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  loginLinkContainer: {
+    marginTop: 14,
+    alignItems: 'center',
+  },
+  loginLink: {
+    color: '#0B5ED7',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  // Success screen styles
+  successContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  successTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
+    color: '#059669', // Green color for success
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  successMessage: {
+    fontSize: 16,
+    color: '#374151',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  loginButton: {
+    backgroundColor: '#0B5ED7',
+    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  loginButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
   },
 });
