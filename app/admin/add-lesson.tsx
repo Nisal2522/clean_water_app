@@ -68,8 +68,8 @@ export default function AddLesson() {
   const uploadVideoToCloudinary = async (uri: string, lessonId: string) => {
     try {
 
-      const CLOUD_NAME = 'Your Cloudinary Name Here';
-      const UPLOAD_PRESET = 'UPLOAD_PRESET_HERE';
+      const CLOUD_NAME = 'dwednnm0l';
+      const UPLOAD_PRESET = 'Nisal@2522';
 
       // Get file extension and determine MIME type
       const fileExtension = uri.split('.').pop()?.toLowerCase() || 'mp4';
