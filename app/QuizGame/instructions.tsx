@@ -33,7 +33,7 @@ export default function QuizScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <LinearGradient
-        colors={['#0A3AAB', '#0A3AAB']}
+       colors={['#B8D4FD', '#B8D4FD']}
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
@@ -41,12 +41,12 @@ export default function QuizScreen() {
         <TouchableOpacity style={styles.headerButton} onPress={handleBackPress}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>How to play</Text>
-        <View style={styles.headerRight}>
+        
+        {/* <View style={styles.headerRight}>
           <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
             <Ionicons name="menu" size={24} color="white" />
           </TouchableOpacity>
-        </View>
+        </View> */}
       </LinearGradient>
 
       {/* Main Content */}
@@ -105,13 +105,13 @@ export default function QuizScreen() {
       </LinearGradient>
 
       {/* Bottom Navigation */}
-      <LinearGradient
+      {/* <LinearGradient
         colors={['#B8D4FD', '#B8D4FD']}
         style={styles.bottomNavContainer}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
       >
-        <View style={styles.bottomNav}>
+         <View style={styles.bottomNav}>
           <TouchableOpacity style={styles.navItem}>
             <Ionicons name="home" size={24} color="#4A90E2" />
             <Text style={styles.navText}>Home</Text>
@@ -124,11 +124,11 @@ export default function QuizScreen() {
             <Ionicons name="settings" size={24} color="#000" />
             <Text style={styles.navText}>Settings</Text>
           </TouchableOpacity>
-        </View>
-      </LinearGradient>
+        </View> *
+      </LinearGradient> */}
 
       {/* Dropdown Menu */}
-      <Modal
+      {/* <Modal
         visible={showDropdown}
         transparent={true}
         animationType="fade"
@@ -149,7 +149,7 @@ export default function QuizScreen() {
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
-      </Modal>
+      </Modal> */}
     </SafeAreaView>
   );
 }
@@ -175,6 +175,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   headerButton: {
+    marginTop:30,
     padding: 8,
     borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',

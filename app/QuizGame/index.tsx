@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router ,Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
@@ -11,6 +11,7 @@ export default function QuizGameDashboard() {
       style={styles.container}
     >
       <StatusBar style="dark" />
+      <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.content}>
         <Text style={styles.title}>Quiz Games</Text>
         <Text style={styles.subtitle}>Choose a quiz game to play!</Text>

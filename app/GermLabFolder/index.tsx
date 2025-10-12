@@ -54,7 +54,7 @@ export default function PreGameScreen() {
 			</View>
 
 			{/* Bottom nav bar */}
-			<View style={styles.bottomNav}>
+			{/* <View style={styles.bottomNav}>
 				<Pressable style={styles.navItem} accessibilityRole="button" onPress={() => {}}>
 					<IconSymbol size={28} name="house.fill" color={'#0A3AAB'} />
 					<ThemedText style={styles.navLabel}>Home</ThemedText>
@@ -67,7 +67,7 @@ export default function PreGameScreen() {
 					<IconSymbol size={28} name="gearshape" color={'#1a1a1a'} />
 					<ThemedText style={styles.navLabel}>Settings</ThemedText>
 				</Pressable>
-			</View>
+			</View> */}
 		</ThemedView>
 	);
 }

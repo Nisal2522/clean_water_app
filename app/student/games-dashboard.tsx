@@ -108,7 +108,7 @@ export default function GamingDashboard() {
               <Text style={styles.gameDescription}>Fight germs and keep hands clean</Text>
               <TouchableOpacity
                 style={styles.playButton}
-                onPress={() => handlePlayGame('Germ Buster Lab')}
+               onPress={() => router.push('/GermLabFolder/game')}
               >
                 <Text style={styles.playButtonText}>Play</Text>
               </TouchableOpacity>

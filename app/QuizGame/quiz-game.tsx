@@ -715,6 +715,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#A8C8E8',
   },
   timer: {
+    marginTop:30,
     width: 50,
     height: 50,
     borderRadius: 25,
@@ -728,8 +729,9 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   questionNumberContainer: {
+
     alignItems: 'center',
-    paddingVertical: 15,
+    paddingVertical: 10,
   },
   questionNumber: {
     backgroundColor: '#B8D4FD',
@@ -821,12 +823,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   questionArea: {
+     marginTop:-100,
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
   },
   questionCard: {
+    marginTop:-250,
     backgroundColor: 'white',
     borderRadius: 15,
     padding: 5,
@@ -850,10 +854,11 @@ const styles = StyleSheet.create({
     height: 250,
   },
   answerContainer: {
+    marginTop:-250,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 9,
-    paddingBottom: 30,
+    paddingHorizontal: 0,
+    paddingBottom: 60,
   },
   answerCard: {
     backgroundColor: 'white',
@@ -947,6 +952,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 30,
     paddingVertical: 12,
+    marginBottom:15,
     width: '100%',
   },
   continueButtonText: {

@@ -33,7 +33,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <LinearGradient
-        colors={['#0A3AAB', '#0A3AAB']}
+        colors={['#B8D4FD', '#B8D4FD']}
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
@@ -41,12 +41,12 @@ export default function HomeScreen() {
         <TouchableOpacity style={styles.headerButton} onPress={handleBackPress}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Quiz'n'Clean</Text>
-        <View style={styles.headerRight}>
+        
+        {/* <View style={styles.headerRight}>
           <TouchableOpacity style={styles.menuButton} onPress={handleMenuPress}>
             <Ionicons name="menu" size={24} color="white" />
           </TouchableOpacity>
-        </View>
+        </View> */}
       </LinearGradient>
 
       {/* Main Content */}
@@ -76,7 +76,7 @@ export default function HomeScreen() {
       </LinearGradient>
 
       {/* Bottom Navigation */}
-      <LinearGradient
+      {/* <LinearGradient
         colors={['#B8D4FD', '#B8D4FD']}
         style={styles.bottomNavContainer}
         start={{ x: 0, y: 0 }}
@@ -96,10 +96,10 @@ export default function HomeScreen() {
             <Text style={styles.navText}>Settings</Text>
         </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </LinearGradient> */}
 
       {/* Dropdown Menu */}
-      <Modal
+      {/* <Modal
         visible={showDropdown}
         transparent={true}
         animationType="fade"
@@ -120,7 +120,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
-      </Modal>
+      </Modal> */}
     </SafeAreaView>
   );
 }
@@ -146,6 +146,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   headerButton: {
+    marginTop:30,
     padding: 8,
     borderRadius: 20,
     backgroundColor: 'rgba(26, 37, 47, 0.15)',
