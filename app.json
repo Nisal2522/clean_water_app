@@ -4,7 +4,7 @@
     "slug": "HygieneHeroes",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/logo2.png",
     "scheme": "hygieneheroes",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.nisal_amarasekara.HygieneHeroes"
     },
     "web": {
       "output": "static",
@@ -30,7 +31,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/logo2.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
@@ -49,6 +50,10 @@
         "storageBucket": "clean-water-66585.firebasestorage.app",
         "messagingSenderId": "143202666483",
         "appId": "1:143202666483:web:fae34115dd6ce98f177486"
+      },
+      "router": {},
+      "eas": {
+        "projectId": "f227181c-806f-4f15-8d01-9fe200701622"
       }
     },
     "experiments": {

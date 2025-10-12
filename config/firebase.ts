@@ -1,7 +1,6 @@
 import Constants from 'expo-constants';
 import { getApp, getApps, initializeApp, type FirebaseApp } from 'firebase/app';
-import { getAuth, initializeAuth } from 'firebase/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
@@ -38,7 +37,7 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 
 // AI Service Configuration
-export const REPLICATE_API_TOKEN = 'r8_SnPa1WRjXIVw9QIQ17VDSb7znUHjzQd2hqvVJ';
+export const REPLICATE_API_TOKEN = 'r8_VWL5BTn4sRc86nvGaAIojLeb0CNLoRB2hP93u';
 export const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions';
 
 // CORS Proxy for development (web only)

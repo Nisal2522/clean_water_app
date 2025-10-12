@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import * as Speech from 'expo-speech';
 import { StatusBar } from 'expo-status-bar';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import React, { useEffect, useRef, useState } from 'react';
@@ -329,6 +330,15 @@ export default function CatchWaterDropsGame() {
     
     // If it's a water drop (positive points), show broken animation
     if (points > 0) {
+      // Speak positive encouragement for clean/special drops
+      try {
+        const positiveText = item.type === 'catchWaterDrop'
+          ? 'Awesome!'
+          : 'Good job!';
+        Speech.speak(positiveText, { language: 'en-US', pitch: 1.05, rate: 1.0 });
+      } catch (e) {
+        console.warn('Speech failed', e);
+      }
       setFallingItems(prev => 
         prev.map(i => i.id === item.id ? { ...i, isBroken: true } : i)
       );
@@ -337,6 +347,15 @@ export default function CatchWaterDropsGame() {
         setFallingItems(prev => prev.filter(i => i.id !== item.id));
       }, 200);
     } else {
+      // Speak caution for negative items (rocks/germs)
+      try {
+        const negativeText = item.type === 'rock'
+          ? 'Oops!'
+          : 'Oh no';
+        Speech.speak(negativeText, { language: 'en-US', pitch: 0.95, rate: 0.95 });
+      } catch (e) {
+        console.warn('Speech failed', e);
+      }
       // For rocks and germs, remove immediately
       setFallingItems(prev => prev.filter(i => i.id !== item.id));
     }
