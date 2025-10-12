@@ -26,17 +26,21 @@ export default function GamingDashboard() {
       style={styles.container}
     >
       <StatusBar style="dark" />
-      
+
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButtonText}>
-            <Text style={styles.backButtonText}>← Back</Text>
+            <Image
+              source={require('../../assets/backArrow.png')}
+              style={{ width: 24, height: 24, tintColor: '#0052cc' }}
+              resizeMode="contain"
+            />
           </TouchableOpacity>
           <Text style={styles.title}>Gaming Dashboard</Text>
         </View>
 
-       
+
         {/* Game Cards */}
         <View style={styles.gamesContainer}>
           {/* Handwashing Hero */}
@@ -47,9 +51,9 @@ export default function GamingDashboard() {
             >
               <View style={styles.gameImageContainer}>
                 <Image
-                    source={require('../../assets/game/hand_washing_soap.png')}
-                    style={{ width: 80, height: 80, resizeMode: 'contain' }}
-                    accessibilityLabel="Hand washing soap"
+                  source={require('../../assets/game/hand_washing_soap.png')}
+                  style={{ width: 80, height: 80, resizeMode: 'contain' }}
+                  accessibilityLabel="Hand washing soap"
                 />
               </View>
               <Text style={styles.gameTitle}>Handwashing Hero</Text>
@@ -71,9 +75,9 @@ export default function GamingDashboard() {
             >
               <View style={styles.gameImageContainer}>
                 <Image
-                    source={require('../../assets/game/catchWaterDrop.png')}
-                    style={{ width: 80, height: 80, resizeMode: 'contain' }}
-                    accessibilityLabel="Catch the Water Drops"
+                  source={require('../../assets/game/catchWaterDrop.png')}
+                  style={{ width: 80, height: 80, resizeMode: 'contain' }}
+                  accessibilityLabel="Catch the Water Drops"
                 />
               </View>
               <Text style={styles.gameTitle}>Catch the Water Drops</Text>
@@ -95,9 +99,9 @@ export default function GamingDashboard() {
             >
               <View style={styles.gameImageContainer}>
                 <Image
-                    source={require('../../assets/game/germ.png')}
-                    style={{ width: 80, height: 80, resizeMode: 'contain' }}
-                    accessibilityLabel="Germ Buster Lab"
+                  source={require('../../assets/game/germ.png')}
+                  style={{ width: 80, height: 80, resizeMode: 'contain' }}
+                  accessibilityLabel="Germ Buster Lab"
                 />
               </View>
               <Text style={styles.gameTitle}>Germ Buster Lab</Text>
@@ -132,7 +136,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 30,
   },
-    backButtonText: {
+  backButtonText: {
     fontSize: 16,
     color: '#0052cc',
     fontWeight: '600',

@@ -1,27 +1,27 @@
+import { auth, db } from '@/config/firebase';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import {
+    collection,
+    doc,
+    getDocs,
+    query,
+    serverTimestamp,
+    setDoc,
+    where
+} from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Alert,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { auth, db } from '@/config/firebase';
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  doc, 
-  setDoc, 
-  getDoc,
-  serverTimestamp 
-} from 'firebase/firestore';
 
 interface Quiz {
   question: string;
@@ -170,16 +170,18 @@ export default function LessonQuiz() {
 
   if (loading) {
     return (
-      <LinearGradient
-       colors={["#d7e9ff", "#cfe6ff"]}
-        style={styles.container}
-      >
+      <View style={styles.container}>
         <StatusBar style="dark" />
+        <Image
+          source={require('../../assets/game/cloudySky.png')}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#8b5cf6" />
-          <Text style={styles.loadingText}>Loading Quiz...</Text>
+          <ActivityIndicator size="large" color="#0052cc" />
+          <Text style={styles.loadingText}>🧠 Loading Quiz...</Text>
         </View>
-      </LinearGradient>
+      </View>
     );
   }
 
@@ -190,25 +192,36 @@ export default function LessonQuiz() {
   // Results Screen
   if (showResults) {
     return (
-      <LinearGradient
-        colors={['#a78bfa', '#c4b5fd', '#e9d5ff']}
-        style={styles.container}
-      >
+      <View style={styles.container}>
         <StatusBar style="dark" />
+        <Image
+          source={require('../../assets/game/cloudySky.png')}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
         <View style={styles.resultsContainer}>
           <View style={styles.resultsCard}>
             <View style={styles.medalContainer}>
-              <Text style={styles.medalEmoji}>🏅</Text>
+              <Image
+                source={require('../../assets/game/medle.png')}
+                style={styles.medalImage}
+              />
             </View>
             
-            <Text style={styles.resultsTitle}>Great!</Text>
-            <Text style={styles.resultsSubtitle}>Your Lesson Completed!</Text>
+            <Text style={styles.resultsTitle}>🎉 Great Job!</Text>
+            <Text style={styles.resultsSubtitle}>Lesson Completed!</Text>
             
             <View style={styles.scoreContainer}>
               <View style={styles.starContainer}>
-                <Text style={styles.star}>⭐</Text>
-                <Text style={styles.scoreText}>{score}</Text>
-                <Text style={styles.star}>⭐</Text>
+                <Image
+                  source={require('../../assets/game/star.png')}
+                  style={styles.starImage}
+                />
+                <Text style={styles.scoreText}>{score}%</Text>
+                <Image
+                  source={require('../../assets/game/star.png')}
+                  style={styles.starImage}
+                />
               </View>
             </View>
 
@@ -220,18 +233,18 @@ export default function LessonQuiz() {
                 <Text style={styles.retakeButtonText}>🔄 Retake Quiz</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.backButton} onPress={handleBackToLesson}>
+              <TouchableOpacity style={styles.backButtonResult} onPress={handleBackToLesson}>
                 <LinearGradient
-                  colors={['#8b5cf6', '#a78bfa']}
+                  colors={['#0052cc', '#0066ff']}
                   style={styles.backButtonGradient}
                 >
-                  <Text style={styles.backButtonText}>Back to Lesson</Text>
+                  <Text style={styles.backButtonText}>✓ Back to Lessons</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
           </View>
         </View>
-      </LinearGradient>
+      </View>
     );
   }
 
@@ -240,18 +253,26 @@ export default function LessonQuiz() {
   const progress = ((currentQuestionIndex + 1) / quizData.quizzes.length) * 100;
 
   return (
-    <LinearGradient
-      colors={["#d7e9ff", "#cfe6ff"]}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <StatusBar style="dark" />
+      
+      {/* Background Image */}
+      <Image
+        source={require('../../assets/game/cloudySky.png')}
+        style={styles.backgroundImage}
+        resizeMode="cover"
+      />
       
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBackToLesson} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>✕</Text>
+            <Image
+              source={require('../../assets/backArrow.png')}
+              style={{ width: 24, height: 24, tintColor: '#0052cc' }}
+              resizeMode="contain"
+            />
           </TouchableOpacity>
-          <Text style={styles.title}>{quizData.topic}</Text>
+          <Text style={styles.title}>🎯 {quizData.topic}</Text>
         </View>
 
         <View style={styles.quizCard}>
@@ -272,33 +293,43 @@ export default function LessonQuiz() {
 
           {/* Answers */}
           <View style={styles.answersContainer}>
-            {currentQuiz.answers.map((answer, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.answerButton,
-                  selectedAnswers[currentQuestionIndex] === index && styles.answerButtonSelected,
-                ]}
-                onPress={() => handleAnswerSelect(index)}
-              >
-                <View style={styles.answerContent}>
-                  <View style={styles.answerLabel}>
-                    <Text style={[
-                      styles.answerLabelText,
-                      selectedAnswers[currentQuestionIndex] === index && styles.answerLabelTextSelected,
+            {currentQuiz.answers.map((answer, index) => {
+              const answerColors = ['#fef3c7', '#dbeafe', '#d1fae5', '#fce7f3'];
+              const selectedColor = ['#fbbf24', '#3b82f6', '#10b981', '#ec4899'];
+              
+              return (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.answerButton,
+                    { backgroundColor: answerColors[index % 4] },
+                    selectedAnswers[currentQuestionIndex] === index && { 
+                      backgroundColor: selectedColor[index % 4],
+                      borderWidth: 3,
+                      borderColor: '#fff'
+                    },
+                  ]}
+                  onPress={() => handleAnswerSelect(index)}
+                >
+                  <View style={styles.answerContent}>
+                    <View style={[
+                      styles.answerLabel,
+                      { backgroundColor: selectedColor[index % 4] }
                     ]}>
-                      {String.fromCharCode(97 + index)})
+                      <Text style={styles.answerLabelText}>
+                        {String.fromCharCode(65 + index)}
+                      </Text>
+                    </View>
+                    <Text style={[
+                      styles.answerText,
+                      selectedAnswers[currentQuestionIndex] === index && styles.answerTextSelected,
+                    ]}>
+                      {answer}
                     </Text>
                   </View>
-                  <Text style={[
-                    styles.answerText,
-                    selectedAnswers[currentQuestionIndex] === index && styles.answerTextSelected,
-                  ]}>
-                    {answer}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
           {/* Navigation */}
@@ -327,94 +358,124 @@ export default function LessonQuiz() {
                 onPress={handleCompleteQuiz}
               >
                 <LinearGradient
-                   colors={['#a950a9ff', '#f87cc2ff']}
+                  colors={['#0052cc', '#0066ff']}
                   style={styles.completeButtonGradient}
                 >
-                  <Text style={styles.completeButtonText}>Complete Quiz</Text>
+                  <Text style={styles.completeButtonText}>✓ Complete Quiz</Text>
                 </LinearGradient>
               </TouchableOpacity>
             )}
           </View>
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 50,
+    backgroundColor: '#87CEEB',
+  },
+  backgroundImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    margin: 20,
+    borderRadius: 20,
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#6b7280',
+    color: '#1f2937',
+    fontWeight: '600',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     padding: 20,
+    paddingTop: 60,
   },
   header: {
     marginBottom: 20,
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   closeButton: {
-    alignSelf: 'flex-start',
-    marginBottom: 12,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   closeButtonText: {
     fontSize: 24,
-    color: '#4c1d95',
+    color: '#0052cc',
     fontWeight: 'bold',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1f2937',
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   quizCard: {
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 20,
     padding: 20,
-    elevation: 3,
+    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   progressContainer: {
     marginBottom: 24,
   },
   progressBar: {
-    height: 8,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 4,
+    height: 10,
+    backgroundColor: 'rgba(229, 231, 235, 0.8)',
+    borderRadius: 5,
     overflow: 'hidden',
     marginBottom: 8,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#c42c96ff',
-    borderRadius: 4,
+    backgroundColor: '#0052cc',
+    borderRadius: 5,
   },
   progressText: {
     fontSize: 14,
     color: '#6b7280',
     textAlign: 'center',
+    fontWeight: '600',
   },
   questionContainer: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#e0f2fe',
     borderRadius: 16,
     padding: 20,
     marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#0052cc',
   },
   questionText: {
     fontSize: 18,
@@ -426,26 +487,27 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   answerButton: {
-    backgroundColor: '#fef3c7',
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 16,
     marginBottom: 12,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
   },
   answerButtonSelected: {
-    backgroundColor: '#d8b4fe',
-    borderColor: '#8b5cf6',
+    borderWidth: 3,
+    borderColor: '#0052cc',
   },
   answerContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   answerLabel: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#f59e0b',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -462,10 +524,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1f2937',
     flex: 1,
+    fontWeight: '500',
   },
   answerTextSelected: {
-    fontWeight: '600',
-    color: '#4c1d95',
+    fontWeight: '700',
+    color: '#ffffff',
   },
   navigationContainer: {
     flexDirection: 'row',
@@ -474,20 +537,22 @@ const styles = StyleSheet.create({
   navButton: {
     paddingVertical: 12,
     paddingHorizontal: 20,
+    backgroundColor: 'rgba(0, 82, 204, 0.1)',
+    borderRadius: 20,
   },
   navButtonText: {
     fontSize: 16,
-    color: '#8b5cf6',
-    fontWeight: '600',
+    color: '#0052cc',
+    fontWeight: '700',
   },
   completeButton: {
     borderRadius: 25,
     overflow: 'hidden',
-    elevation: 3,
+    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   completeButtonGradient: {
     paddingVertical: 14,
@@ -506,39 +571,51 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   resultsCard: {
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
     borderRadius: 30,
     padding: 40,
     alignItems: 'center',
     width: '100%',
-    elevation: 5,
+    elevation: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   medalContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: '#fef3c7',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  medalImage: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
   },
   medalEmoji: {
-    fontSize: 50,
+    fontSize: 60,
   },
   resultsTitle: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#1f2937',
     marginBottom: 8,
+    textAlign: 'center',
   },
   resultsSubtitle: {
     fontSize: 18,
     color: '#6b7280',
     marginBottom: 30,
+    fontWeight: '600',
   },
   scoreContainer: {
     marginBottom: 40,
@@ -548,6 +625,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  starImage: {
+    width: 40,
+    height: 40,
+    marginHorizontal: 10,
+    resizeMode: 'contain',
+  },
   star: {
     fontSize: 32,
     marginHorizontal: 8,
@@ -555,22 +638,33 @@ const styles = StyleSheet.create({
   scoreText: {
     fontSize: 48,
     fontWeight: 'bold',
-    color: '#8b5cf6',
+    color: '#0052cc',
   },
   buttonGroup: {
     width: '100%',
     gap: 12,
   },
   retakeButton: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#e0f2fe',
     paddingVertical: 16,
     borderRadius: 25,
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#0052cc',
   },
   retakeButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#6b7280',
+    color: '#0052cc',
+  },
+  backButtonResult: {
+    borderRadius: 25,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   backButton: {
     borderRadius: 25,

@@ -1,21 +1,21 @@
+import { auth, db } from '@/config/firebase';
+import { ResizeMode, Video } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Image,
 } from 'react-native';
-import { Video, ResizeMode } from 'expo-av';
-import { auth, db } from '@/config/firebase';
-import { collection, getDocs, query, orderBy, where, doc, getDoc } from 'firebase/firestore';
 
 interface Lesson {
   id: string;
@@ -43,7 +43,7 @@ export default function LessonDashboard() {
       setLoading(true);
       const lessonsQuery = query(collection(db, 'lessons'), orderBy('createdAt', 'desc'));
       const querySnapshot = await getDocs(lessonsQuery);
-      
+
       const fetchedLessons: Lesson[] = [];
       querySnapshot.forEach((doc) => {
         fetchedLessons.push({
@@ -83,7 +83,7 @@ export default function LessonDashboard() {
   const handleLessonPress = async (lesson: Lesson) => {
     setSelectedLesson(lesson);
     setCheckingQuiz(true);
-    
+
     // Check if quiz exists
     try {
       const quizzesQuery = query(
@@ -114,78 +114,104 @@ export default function LessonDashboard() {
     setHasQuiz(false);
   };
 
-  const renderLesson = ({ item, index }: { item: Lesson; index: number }) => (
-    <TouchableOpacity
-      style={styles.lessonCard}
-      onPress={() => handleLessonPress(item)}
-      activeOpacity={0.8}
-    >
-      <LinearGradient
-        colors={['#9fcafeff', '#aed4fcff']} //colors={["#d7e9ff", "#cfe6ff"]}
-        style={styles.cardGradient}
+  const renderLesson = ({ item, index }: { item: Lesson; index: number }) => {
+    // Fun gradient colors for each lesson card
+    const cardColors: [string, string][] = [
+      ['#a7c7e7', '#b8d8f0'],
+      ['#ffd1dc', '#ffe4e9'],
+      ['#c8e6c9', '#d7f0d8'],
+      ['#fff4b8', '#fff9d4'],
+      ['#e1bee7', '#ead4f0'],
+    ];
+    const colors = cardColors[index % cardColors.length];
+    
+    return (
+      <TouchableOpacity
+        style={styles.lessonCard}
+        onPress={() => handleLessonPress(item)}
+        activeOpacity={0.8}
       >
-        <View style={styles.cardHeader}>
-          <View style={styles.iconContainer}>
-            <Text style={styles.iconEmoji}><Image source={require('../../assets/game/hand_washing_soap.png')} /></Text>
+        <LinearGradient
+          colors={colors}
+          style={styles.cardGradient}
+        >
+          <View style={styles.cardHeader}>
+            <View style={styles.iconContainer}>
+              <Image 
+                source={require('../../assets/game/hand_washing_soap.png')} 
+                style={styles.iconImage}
+              />
+            </View>
+            <View style={styles.headerText}>
+              <Text style={styles.lessonTitle}>{item.topic}</Text>
+              <Text style={styles.lessonSubtitle}>
+                {item.content.substring(0, 60)}...
+              </Text>
+            </View>
           </View>
-          <View style={styles.headerText}>
-            <Text style={styles.lessonTitle}>{item.topic}</Text>
-            <Text style={styles.lessonSubtitle}>
-              {item.content.substring(0, 60)}...
-            </Text>
+
+          {item.videoUrl && (
+            <Video
+              source={{ uri: item.videoUrl }}
+              style={styles.lessonVideo}
+              useNativeControls
+              resizeMode={ResizeMode.CONTAIN}
+              isLooping={false}
+            />
+          )}
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity 
+              style={styles.reviewButton}
+              onPress={() => handleLessonPress(item)}
+            >
+              <Text style={styles.reviewButtonText}>📖 Learn Now</Text>
+            </TouchableOpacity>
           </View>
-        </View>
-        
-        {item.videoUrl && (
-          <Video
-            source={{ uri: item.videoUrl }}
-            style={styles.lessonVideo}
-            useNativeControls
-            resizeMode={ResizeMode.CONTAIN}
-            isLooping={false}
-          />
-        )}
-        
-        <View style={styles.buttonContainer}>
-          <View style={styles.reviewButton}>
-            <Text style={styles.reviewButtonText}>Review Lesson</Text>
-          </View>
-        </View>
-      </LinearGradient>
-    </TouchableOpacity>
-  );
+        </LinearGradient>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
-      <LinearGradient
-        colors={["#d7e9ff", "#cfe6ff"]}
-        style={styles.container}
-      >
+      <View style={styles.container}>
         <StatusBar style="dark" />
+        <Image
+          source={require('../../assets/game/cloudySky.png')}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#8b5cf6" />
-          <Text style={styles.loadingText}>Loading Lessons...</Text>
+          <ActivityIndicator size="large" color="#0052cc" />
+          <Text style={styles.loadingText}>📚 Loading Lessons...</Text>
         </View>
-      </LinearGradient>
+      </View>
     );
   }
 
   // Show selected lesson content
   if (selectedLesson) {
     return (
-      <LinearGradient
-       colors={["#d7e9ff", "#cfe6ff"]}
-        style={styles.container}
-      >
+      <View style={styles.container}>
         <StatusBar style="dark" />
+        <Image
+          source={require('../../assets/game/cloudySky.png')}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-          <TouchableOpacity onPress={handleBackToList} style={styles.backButton}>
-            <Text style={styles.backButtonText}>← Back to Lessons</Text>
+          <TouchableOpacity onPress={handleBackToList} style={styles.backButtonRound}>
+            <Image
+              source={require('../../assets/backArrow.png')}
+              style={{ width: 24, height: 24, tintColor: '#0052cc' }}
+              resizeMode="contain"
+            />
           </TouchableOpacity>
 
           <View style={styles.contentCard}>
             <Text style={styles.title}>{selectedLesson.topic}</Text>
-            
+
             {selectedLesson.videoUrl && (
               <Video
                 source={{ uri: selectedLesson.videoUrl }}
@@ -226,24 +252,40 @@ export default function LessonDashboard() {
             )}
           </View>
         </ScrollView>
-      </LinearGradient>
+      </View>
     );
   }
 
   // Show lesson list
   return (
-    <LinearGradient
-      colors={["#d7e9ff", "#cfe6ff"]}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <StatusBar style="dark" />
       
+      {/* Background Image */}
+      <Image
+        source={require('../../assets/game/cloudySky.png')}
+        style={styles.backgroundImage}
+        resizeMode="cover"
+      />
+
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backButtonText}>← Back</Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButtonRound}>
+          <Image
+            source={require('../../assets/backArrow.png')}
+            style={{ width: 24, height: 24, tintColor: '#0052cc' }}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
-        <Text style={styles.title}>Your Lessons</Text>
-        <Text style={styles.subtitle}>{completedLessonIds.size} Lessons Completed</Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.title}>📚 Your Lessons</Text>
+          <View style={styles.completedBadge}>
+            <Image
+              source={require('../../assets/game/star.png')}
+              style={styles.badgeIcon}
+            />
+            <Text style={styles.subtitle}>{completedLessonIds.size} Completed</Text>
+          </View>
+        </View>
       </View>
 
       {lessons.filter(lesson => !completedLessonIds.has(lesson.id)).length === 0 ? (
@@ -263,28 +305,83 @@ export default function LessonDashboard() {
           showsVerticalScrollIndicator={false}
         />
       )}
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 50,
+    backgroundColor: '#87CEEB',
+  },
+  backgroundImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    margin: 20,
+    borderRadius: 20,
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
     color: '#6b7280',
+    fontWeight: '600',
   },
   header: {
     paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingTop: 50,
+    paddingBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  backButtonRound: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  headerContent: {
+    flex: 1,
+    marginLeft: 15,
+  },
+  completedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    alignSelf: 'flex-start',
+    marginTop: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  badgeIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 6,
+    resizeMode: 'contain',
   },
   backButton: {
     marginBottom: 16,
@@ -295,20 +392,26 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#1f2937',
-    marginBottom: 4,
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
+    fontSize: 14,
+    color: '#4b5563',
+    fontWeight: '600',
   },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    margin: 20,
+    borderRadius: 20,
   },
   emptyEmoji: {
     fontSize: 64,
@@ -333,11 +436,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 20,
     overflow: 'hidden',
-    elevation: 5,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   cardGradient: {
     padding: 20,
@@ -348,22 +451,32 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   iconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  iconImage: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
   },
   iconEmoji: {
-    fontSize: 24,
+    fontSize: 30,
   },
   headerText: {
     flex: 1,
   },
   lessonTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1f2937',
     marginBottom: 4,
@@ -384,11 +497,16 @@ const styles = StyleSheet.create({
   },
   reviewButton: {
     backgroundColor: '#0052cc',
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 25,
     alignItems: 'center',
     minWidth: 150,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   reviewButtonText: {
     fontSize: 16,
@@ -400,16 +518,18 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
+    paddingTop: 60,
   },
   contentCard: {
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 20,
     padding: 20,
-    elevation: 3,
+    elevation: 5,
+    marginTop:20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
   },
   video: {
     width: '100%',
@@ -422,7 +542,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1f2937',
     marginBottom: 12,
@@ -435,28 +555,33 @@ const styles = StyleSheet.create({
   bulletPoint: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 10,
     paddingLeft: 8,
+    backgroundColor: 'rgba(52, 211, 153, 0.1)',
+    paddingVertical: 8,
+    paddingRight: 8,
+    borderRadius: 8,
   },
   bulletIcon: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#10b981',
     marginRight: 8,
     fontWeight: 'bold',
   },
   bulletText: {
-    fontSize: 15,
-    color: '#4b5563',
+    fontSize: 16,
+    color: '#1f2937',
     flex: 1,
+    fontWeight: '600',
   },
   quizButton: {
     borderRadius: 25,
     overflow: 'hidden',
-    elevation: 3,
+    elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
     marginTop: 20,
   },
   quizButtonGradient: {

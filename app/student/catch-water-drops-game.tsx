@@ -235,14 +235,7 @@ export default function CatchWaterDropsGame() {
     const isNewHighScore = gameState.score > gameState.highScore;
     await saveGameData(gameState.score, gameState.level, false, isNewHighScore);
     
-    Alert.alert(
-      'Game Over',
-      `Final Score: ${gameState.score}\nLevel: ${gameState.level}\n${isNewHighScore ? 'New High Score! 🎉' : `High Score: ${gameState.highScore}`}`,
-      [
-        { text: 'Back to Dashboard', onPress: () => router.back() },
-        { text: 'Play Again', onPress: () => restartGame() },
-      ]
-    );
+    
   };
 
   const getRandomItemType = (): ItemType => {
@@ -459,27 +452,48 @@ export default function CatchWaterDropsGame() {
     <View style={styles.container}>
       <StatusBar style="light" />
       
-      <LinearGradient
-        colors={['#e6f7ff', '#cfe6ff']}
-        style={styles.header}
-      >
-        <TouchableOpacity onPress={handleBackPress} >
-          <Text style={styles.backIcon}>← Back</Text>
+      {/* Background Image */}
+      <Image
+        source={require('../../assets/game/cloudySky.png')}
+        style={styles.backgroundImage}
+        resizeMode="cover"
+      />
+      
+      {/* Header with Stats */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
+          <Image
+            source={require('../../assets/backArrow.png')}
+            style={{ width: 24, height: 24, tintColor: '#0052cc' }}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
         
         <View style={styles.headerInfo}>
-          <View style={styles.statContainer}>
-            <Text style={styles.statLabel}>Score</Text>
-            <Text style={styles.statValue}>{gameState.score}</Text>
-          </View>
-          
-          <View style={styles.statContainer}>
-            <Text style={styles.statLabel}>Level</Text>
+          {/* Level */}
+          <View style={styles.statCard}>
+            <Image
+              source={require('../../assets/game/catchWaterDrop.png')}
+              style={styles.statIcon}
+            />
             <Text style={styles.statValue}>{gameState.level}/10</Text>
           </View>
           
-          <View style={styles.statContainer}>
-            <Text style={styles.statLabel}>High Score</Text>
+          {/* Score */}
+          <View style={styles.statCard}>
+            <Image
+              source={require('../../assets/game/star.png')}
+              style={styles.statIcon}
+            />
+            <Text style={styles.statValue}>{gameState.score}</Text>
+          </View>
+          
+          {/* High Score */}
+          <View style={styles.statCard}>
+            <Image
+              source={require('../../assets/game/medle.png')}
+              style={styles.statIcon}
+            />
             <Text style={styles.statValue}>{gameState.highScore}</Text>
           </View>
         </View>
@@ -489,53 +503,136 @@ export default function CatchWaterDropsGame() {
             <Text style={styles.pauseIcon}>⏸</Text>
           </TouchableOpacity>
         )}
-      </LinearGradient>
+      </View>
 
-      <LinearGradient
-        colors={['#e6f7ff', '#cfe6ff']}
-        style={styles.gameArea}
-      >
+      <View style={styles.gameArea}>
         {!gameState.isPlaying ? (
           <View style={styles.startContainer}>
+            <View style={styles.gameIconContainer}>
+              <Image
+                source={require('../../assets/game/water_drop.png')}
+                style={styles.gameIcon}
+              />
+            </View>
+            
             <Text style={styles.gameTitle}>Catch Water Drops</Text>
-            <Text style={styles.gameInstructions}>
-              🌊 Catch clean water drops (+5 points){'\n'}
-              💧 Catch special water drops (+10 points){'\n'}
-              🪨 Avoid rocks (-5 points){'\n'}
-              🦠 Avoid germ water (-10 points){'\n\n'}
-              ⚠️ Catch items ONLY in the bottom blue zone!{'\n'}
-              Reach 100 points to level up!
-            </Text>
+            <Text style={styles.gameSubtitle}>Let's Learn to Save Water!</Text>
+            
+            <View style={styles.instructionsCard}>
+              <Text style={styles.instructionTitle}>🎮 How to Play:</Text>
+              
+              <View style={styles.instructionItem}>
+                <View style={[styles.instructionIcon, { backgroundColor: '#e3f2fd' }]}>
+                  <Text style={styles.instructionEmoji}>💧</Text>
+                </View>
+                <Text style={styles.instructionText}>Catch clean water drops +5</Text>
+              </View>
+              
+              <View style={styles.instructionItem}>
+                <View style={[styles.instructionIcon, { backgroundColor: '#e1f5fe' }]}>
+                  <Text style={styles.instructionEmoji}>🌊</Text>
+                </View>
+                <Text style={styles.instructionText}>Special drops +10 points</Text>
+              </View>
+              
+              <View style={styles.instructionItem}>
+                <View style={[styles.instructionIcon, { backgroundColor: '#ffebee' }]}>
+                  <Text style={styles.instructionEmoji}>🪨</Text>
+                </View>
+                <Text style={styles.instructionText}>Avoid rocks -5 points</Text>
+              </View>
+              
+              <View style={styles.instructionItem}>
+                <View style={[styles.instructionIcon, { backgroundColor: '#fff3e0' }]}>
+                  <Text style={styles.instructionEmoji}>🦠</Text>
+                </View>
+                <Text style={styles.instructionText}>Avoid germs -10 points</Text>
+              </View>
+            </View>
+            
             <TouchableOpacity
               style={styles.startButton}
               onPress={() => startGame()}
+              activeOpacity={0.8}
             >
-              <Text style={styles.startButtonText}>Start Game</Text>
+              <LinearGradient
+                colors={['#0052cc', '#0066ff']}
+                style={styles.startButtonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Text style={styles.startButtonText}>🎮 Start Game</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         ) : gameState.isPaused ? (
           <View style={styles.startContainer}>
+            <View style={styles.pauseIconContainer}>
+              <Text style={styles.pauseIconLarge}>⏸️</Text>
+            </View>
+            
             <Text style={styles.gameTitle}>Game Paused</Text>
-            <Text style={styles.gameInstructions}>
-              Score: {gameState.score}{'\n'}
-              Level: {gameState.level}
-            </Text>
+            <Text style={styles.pauseSubtitle}>Take a break!</Text>
+            
+            <View style={styles.pauseStatsCard}>
+              <View style={styles.pauseStatRow}>
+                <View style={styles.pauseStatItem}>
+                  <Image
+                    source={require('../../assets/game/star.png')}
+                    style={styles.pauseStatIcon}
+                  />
+                  <Text style={styles.pauseStatLabel}>Score</Text>
+                  <Text style={styles.pauseStatValue}>{gameState.score}</Text>
+                </View>
+                
+                <View style={styles.pauseStatDivider} />
+                
+                <View style={styles.pauseStatItem}>
+                  <Image
+                    source={require('../../assets/game/catchWaterDrop.png')}
+                    style={styles.pauseStatIcon}
+                  />
+                  <Text style={styles.pauseStatLabel}>Level</Text>
+                  <Text style={styles.pauseStatValue}>{gameState.level}</Text>
+                </View>
+                
+                <View style={styles.pauseStatDivider} />
+                
+                <View style={styles.pauseStatItem}>
+                  <Image
+                    source={require('../../assets/game/medle.png')}
+                    style={styles.pauseStatIcon}
+                  />
+                  <Text style={styles.pauseStatLabel}>Best</Text>
+                  <Text style={styles.pauseStatValue}>{gameState.highScore}</Text>
+                </View>
+              </View>
+            </View>
+            
             <TouchableOpacity
               style={styles.startButton}
               onPress={continueGame}
+              activeOpacity={0.8}
             >
-              <Text style={styles.startButtonText}>Continue</Text>
+              <LinearGradient
+                colors={['#10b981', '#059669']}
+                style={styles.startButtonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              >
+                <Text style={styles.startButtonText}>▶️ Continue</Text>
+              </LinearGradient>
             </TouchableOpacity>
+            
             <TouchableOpacity
-              style={[styles.startButton, styles.secondaryButton]}
+              style={[styles.startButton, styles.endGameButton]}
               onPress={() => {
                 endGame();
                 router.back();
               }}
+              activeOpacity={0.8}
             >
-              <Text style={[styles.startButtonText, styles.secondaryButtonText]}>
-                End Game
-              </Text>
+              <Text style={styles.endGameButtonText}>End Game & Go Home</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -578,7 +675,7 @@ export default function CatchWaterDropsGame() {
             </View>
           </>
         )}
-      </LinearGradient>
+      </View>
 
       <Modal
         visible={showResumeDialog}
@@ -615,34 +712,71 @@ export default function CatchWaterDropsGame() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: '#87CEEB',
+  },
+  backgroundImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   header: {
     paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    paddingBottom: 15,
+    paddingHorizontal: 15,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    zIndex: 100,
   },
   backButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   backIcon: {
-    fontSize: 16,
+    fontSize: 24,
     color: '#0052cc',
-    fontWeight: '600',
+    fontWeight: 'bold',
   },
   headerInfo: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginLeft: 20,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  statCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    minWidth: 80,
+    justifyContent: 'center',
+  },
+  statIcon: {
+    width: 28,
+    height: 28,
+    marginRight: 6,
+    resizeMode: 'contain',
   },
   statContainer: {
     alignItems: 'center',
@@ -654,22 +788,26 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   statValue: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#003a8c',
+    color: '#1a1a1a',
   },
   pauseButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 12,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   pauseIcon: {
     fontSize: 20,
-    color: 'white',
+    color: '#0052cc',
   },
   gameArea: {
     flex: 1,
@@ -680,37 +818,244 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    margin: 20,
+    borderRadius: 20,
+  },
+  gameIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#e3f2fd',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+    marginTop: 25,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  gameIcon: {
+    width: 70,
+    height: 70,
+    resizeMode: 'contain',
   },
   gameTitle: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#0f62fe',
+    marginBottom: 8,
+    textAlign: 'center',
+    textShadowColor: 'rgba(255, 255, 255, 0.8)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  gameSubtitle: {
+    fontSize: 16,
+    color: '#4b5563',
     marginBottom: 20,
     textAlign: 'center',
+    fontWeight: '600',
   },
-  gameInstructions: {
-    fontSize: 16,
-    color: '#1e90ff',
+  instructionsCard: {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#e3f2fd',
+  },
+  instructionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1f2937',
+    marginBottom: 12,
     textAlign: 'center',
-    marginBottom: 30,
-    lineHeight: 24,
   },
-  startButton: {
-    backgroundColor: '#0052cc',
-    paddingVertical: 16,
-    paddingHorizontal: 48,
-    borderRadius: 30,
+  instructionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+  },
+  instructionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  instructionEmoji: {
+    fontSize: 20,
+  },
+  instructionText: {
+    fontSize: 15,
+    color: '#1f2937',
+    flex: 1,
+    fontWeight: '600',
+  },
+  warningBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff3cd',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#ffc107',
+  },
+  warningIcon: {
+    fontSize: 20,
+    marginRight: 8,
+  },
+  warningText: {
+    fontSize: 14,
+    color: '#856404',
+    flex: 1,
+    fontWeight: '600',
+  },
+  goalBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#e3f2fd',
+    padding: 12,
+    borderRadius: 10,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#0052cc',
+  },
+  goalIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 8,
+    resizeMode: 'contain',
+  },
+  goalText: {
+    fontSize: 15,
+    color: '#0052cc',
+    fontWeight: 'bold',
+  },
+  pauseIconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#fff3e0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    marginVertical: 8,
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  pauseIconLarge: {
+    fontSize: 50,
+  },
+  pauseSubtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+    marginBottom: 20,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  pauseStatsCard: {
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: '#e3f2fd',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  pauseStatRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  pauseStatItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  pauseStatIcon: {
+    width: 40,
+    height: 40,
+    marginBottom: 8,
+    resizeMode: 'contain',
+  },
+  pauseStatLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  pauseStatValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#0052cc',
+  },
+  pauseStatDivider: {
+    width: 1,
+    height: 60,
+    backgroundColor: '#e5e7eb',
+    marginHorizontal: 8,
+  },
+  gameInstructions: {
+    fontSize: 16,
+    color: '#1e5a8e',
+    textAlign: 'center',
+    marginBottom: 30,
+    lineHeight: 24,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    padding: 15,
+    borderRadius: 10,
+  },
+  startButton: {
+    width: '100%',
+    borderRadius: 30,
+    overflow: 'hidden',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    marginVertical: 6,
+  },
+  startButtonGradient: {
+    paddingVertical: 16,
+    paddingHorizontal: 48,
+    alignItems: 'center',
   },
   startButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
+  },
+  endGameButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#dc2626',
+    elevation: 0,
+  },
+  endGameButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#dc2626',
+    textAlign: 'center',
+    paddingVertical: 16,
   },
   secondaryButton: {
     backgroundColor: 'transparent',
@@ -722,7 +1067,7 @@ const styles = StyleSheet.create({
   },
   fallingItem: {
     position: 'absolute',
-    zIndex:10,
+    zIndex: 10,
     width: ITEM_SIZE,
     height: ITEM_SIZE,
   },
@@ -742,21 +1087,24 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    zIndex:0,
+    zIndex: 0,
     height: CATCH_ZONE_HEIGHT,
-    backgroundColor: 'rgba(14, 110, 255, 0.08)',
-    borderTopWidth: 2,
-    borderTopColor: 'rgba(14, 110, 255, 0.18)',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: 'rgba(100, 180, 255, 0.15)',
+    borderTopWidth: 3,
+    borderTopColor: 'rgba(255, 255, 255, 0.6)',
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
   },
   catchZoneText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#0f62fe',
-    opacity: 0.6,
+    color: '#ffffff',
+    opacity: 0.8,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   modalOverlay: {
     flex: 1,
