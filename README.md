@@ -1,6 +1,93 @@
-# Welcome to your Expo app 👋
+<h1 align="center">🦸‍♀️ Hygiene Hero – Smart Sanitation Learning App</h1>
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+<p align="center">
+  <img src="./assets/banner-dark.png" alt="Hygiene Hero Banner" width="800"/>
+</p>
+
+<p align="center">
+  <b>Year 3 – Semester 1 | User Experience Engineering (SE3050)</b><br/>
+  <b>SLIIT | Group ID: Y3S1–WE–33</b>
+</p>
+
+---
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Framework-Expo-black?style=for-the-badge&logo=expo" />
+  <img src="https://img.shields.io/badge/Frontend-React%20Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+  <img src="https://img.shields.io/badge/Backend-Firebase-2E2E2E?style=for-the-badge&logo=firebase&logoColor=ffca28" />
+  <img src="https://img.shields.io/badge/Design-Figma-181717?style=for-the-badge&logo=figma&logoColor=F24E1E" />
+  <img src="https://img.shields.io/badge/Version%20Control-GitHub-0D1117?style=for-the-badge&logo=github&logoColor=white" />
+</p>
+
+---
+
+## 🧠 Overview
+
+**Hygiene Hero** is an interactive **mobile learning app** designed to educate children on **sanitation, clean water, and hygiene** through **gamification**.  
+The app uses colorful visuals, fun mini-games, and reward-based learning to help children between **ages 6–12** form lifelong healthy habits while enjoying the learning process.
+
+Built with **React Native (Expo)** and powered by **Firebase**, it merges education and play in a safe, inclusive, and data-driven environment.
+
+> 🎯 *Aligned with United Nations Sustainable Development Goal (SDG) 6 – Clean Water and Sanitation.*
+
+---
+
+## 🌟 Key Features
+
+✅ **Gamified Learning:** Fun mini-games, interactive quizzes, and rewards  
+✅ **Progress Dashboard:** Track scores, lessons, and achievements  
+✅ **Avatars & Personalization:** Create a child-friendly hygiene hero avatar  
+✅ **Voice Interaction:** Learn using speech recognition and audio cues  
+✅ **Inclusive Design:** Multi-language support, large icons, and high contrast  
+✅ **Parental Monitoring:** Progress reports and time management tools  
+✅ **Offline Access:** Certain lessons work without internet connectivity  
+✅ **Safe Environment:** 100% ad-free and culturally neutral content  
+
+---
+
+## 👥 System Users
+
+| Role | Description | Core Access |
+|------|--------------|--------------|
+| 👶 **Children** | Learn hygiene through games and quizzes | Play games, earn badges |
+| 👩‍👧 **Parents** | Monitor progress and reports | Track progress, set reminders |
+| 🧑‍⚕️ **Public Health Officers** | Manage educational content | Create/edit lessons, view analytics |
+| 🌍 **UN WASH Officers** | Oversee educational outcomes | Evaluate progress & impact |
+
+---
+
+## 🧭 UX Methodology
+
+The app follows the **Design Thinking Framework** to ensure human-centered design:
+
+1. **Empathize** → Understand children's learning habits and motivation  
+2. **Define** → Identify barriers to effective hygiene education  
+3. **Ideate** → Brainstorm gamified and interactive learning methods  
+4. **Prototype** → Develop high-fidelity designs using **Figma**  
+5. **Test** → Evaluate usability with parents and health officers  
+6. **Implement** → Build functional app using **Expo + Firebase**
+
+---
+
+## 🧩 Tech Stack
+
+| Category | Technologies |
+|-----------|--------------|
+| ⚙️ Frontend | Expo (React Native) |
+| 💾 Backend | Firebase Authentication, Realtime Database |
+| 🎨 Design | Figma, Canva, Mockflow |
+| 🧠 UX Framework | Design Thinking |
+| 🌐 Collaboration | GitHub, Microsoft Teams |
+| 🔉 Voice / AI | Replicate API, Audio Response Tech |
+
+---
+
+## 💻 Installation Guide
+
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/yourusername/hygiene-hero.git
+cd hygiene-hero
 
 ## Get started
 
@@ -24,30 +111,3 @@ In the output, you'll find options to open the app in a
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-
-<!-- run seeder -->
-node scripts/seed-admin.js
