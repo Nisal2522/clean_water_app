@@ -1,5 +1,5 @@
 import { signUp } from '@/config/auth';
-import { router } from 'expo-router';
+import { Href, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { Alert, Dimensions, Image, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
@@ -50,13 +50,20 @@ export default function RegisterScreen() {
     try {
       setLoading(true);
       await signUp(formData.email, formData.password, formData.username);
+      
+      // Show success message
+      setSuccess(true);
+      
+      // For Android, also show a toast
       if (Platform.OS === 'android') {
         ToastAndroid.show('Registered successfully', ToastAndroid.SHORT);
       }
-      setSuccess(true);
-      setTimeout(() => {
-        router.push('/child_profile/child_profile');
-      }, 1200);
+      
+      // Optional: Auto-navigate to login after a delay
+      // setTimeout(() => {
+      //   router.replace('/login/login');
+      // }, 3000);
+      
     } catch (e: any) {
       const message = e?.message || 'Registration failed. Please try again.';
       Alert.alert('Sign up error', message);
@@ -66,7 +73,7 @@ export default function RegisterScreen() {
   };
 
   const handleBackToLogin = () => {
-    router.push('/login/login');
+    router.push('/login/login' as Href);
   };
 
   return (
@@ -78,63 +85,80 @@ export default function RegisterScreen() {
         <Text style={styles.appSubtitle}>Keep clean, stay healthy!</Text>
 
         <View style={styles.card}>
-          <Text style={styles.cardHeading}>Welcome To Hygiene Heroes</Text>
+          {success ? (
+            <View style={styles.successContainer}>
+              <Text style={styles.successTitle}>Registration Successful!</Text>
+              <Text style={styles.successMessage}>
+                Your account has been created. Please log in with your credentials to continue.
+              </Text>
+              <TouchableOpacity 
+                style={styles.loginButton} 
+                onPress={() => router.replace('/login/login' as Href)}
+              >
+                <Text style={styles.loginButtonText}>Go to Login</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <>
+              <Text style={styles.cardHeading}>Register</Text>
 
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Name</Text>
-            <TextInput
-              style={[styles.textInput, { fontSize: inputFontSize }]}
-              placeholder="Enter your name here"
-              value={formData.username}
-              onChangeText={(value) => handleInputChange('username', value)}
-              placeholderTextColor="#9ca3af"
-            />
-          </View>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Name</Text>
+                <TextInput
+                  style={[styles.textInput, { fontSize: inputFontSize }]}
+                  placeholder="Enter your name here"
+                  value={formData.username}
+                  onChangeText={(value) => handleInputChange('username', value)}
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
 
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={[styles.textInput, { fontSize: inputFontSize }]}
-              placeholder="Enter your email here"
-              value={formData.email}
-              onChangeText={(value) => handleInputChange('email', value)}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholderTextColor="#9ca3af"
-            />
-          </View>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Email</Text>
+                <TextInput
+                  style={[styles.textInput, { fontSize: inputFontSize }]}
+                  placeholder="Enter your email here"
+                  value={formData.email}
+                  onChangeText={(value) => handleInputChange('email', value)}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
 
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={[styles.textInput, { fontSize: inputFontSize }]}
-              placeholder="Enter your password here"
-              value={formData.password}
-              onChangeText={(value) => handleInputChange('password', value)}
-              secureTextEntry
-              placeholderTextColor="#9ca3af"
-            />
-          </View>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Password</Text>
+                <TextInput
+                  style={[styles.textInput, { fontSize: inputFontSize }]}
+                  placeholder="Enter your password here"
+                  value={formData.password}
+                  onChangeText={(value) => handleInputChange('password', value)}
+                  secureTextEntry
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
 
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Confirm Password</Text>
-            <TextInput
-              style={[styles.textInput, { fontSize: inputFontSize }]}
-              placeholder="Confirm your password here"
-              value={formData.confirmPassword}
-              onChangeText={(value) => handleInputChange('confirmPassword', value)}
-              secureTextEntry
-              placeholderTextColor="#9ca3af"
-            />
-          </View>
+              <View style={styles.fieldGroup}>
+                <Text style={styles.label}>Confirm Password</Text>
+                <TextInput
+                  style={[styles.textInput, { fontSize: inputFontSize }]}
+                  placeholder="Confirm your password here"
+                  value={formData.confirmPassword}
+                  onChangeText={(value) => handleInputChange('confirmPassword', value)}
+                  secureTextEntry
+                  placeholderTextColor="#9ca3af"
+                />
+              </View>
 
-          <TouchableOpacity style={styles.registerButton} onPress={handleRegister} disabled={loading}>
-            <Text style={styles.registerButtonText}>{loading ? 'Registering…' : 'Register'}</Text>
-          </TouchableOpacity>
+              <TouchableOpacity style={styles.registerButton} onPress={handleRegister} disabled={loading}>
+                <Text style={styles.registerButtonText}>{loading ? 'Registering…' : 'Register'}</Text>
+              </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleBackToLogin} style={styles.loginLinkContainer}>
-            <Text style={styles.loginLink}>Already have account? Sign in</Text>
-          </TouchableOpacity>
+              <TouchableOpacity onPress={handleBackToLogin} style={styles.loginLinkContainer}>
+                <Text style={styles.loginLink}>Already have account? Sign in</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -223,5 +247,38 @@ const styles = StyleSheet.create({
     color: '#0B5ED7',
     fontSize: 14,
     fontWeight: '600',
+  },
+  // Success screen styles
+  successContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  successTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#059669', // Green color for success
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  successMessage: {
+    fontSize: 16,
+    color: '#374151',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  loginButton: {
+    backgroundColor: '#0B5ED7',
+    borderRadius: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  loginButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '700',
   },
 });

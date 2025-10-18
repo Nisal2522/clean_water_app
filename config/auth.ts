@@ -1,13 +1,19 @@
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, serverTimestamp, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
 export async function signIn(email: string, password: string) {
   const cred = await signInWithEmailAndPassword(auth, email.trim(), password);
-  return cred.user;
+  
+  // Fetch user role from Firestore
+  const userDoc = await getDoc(doc(db, 'users', cred.user.uid));
+  const userData = userDoc.data();
+  const role = userData?.role || 'student';
+  
+  return { user: cred.user, role };
 }
 
-export async function signUp(email: string, password: string, displayName?: string) {
+export async function signUp(email: string, password: string, displayName?: string, role: string = 'student') {
   const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
   if (displayName) {
     await updateProfile(cred.user, { displayName });
@@ -19,6 +25,7 @@ export async function signUp(email: string, password: string, displayName?: stri
         uid: cred.user.uid,
         email: cred.user.email ?? email.trim(),
         displayName: displayName ?? cred.user.displayName ?? '',
+        role: role,
         createdAt: serverTimestamp(),
       },
       { merge: true }
