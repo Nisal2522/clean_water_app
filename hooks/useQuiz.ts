@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 import { db } from '../config/firebase';
 
 export interface QuizQuestion {
@@ -32,22 +32,32 @@ export interface QuizBadge {
 }
 
 export function useQuiz() {
+  console.log('🔧 useQuiz hook initialized');
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔄 useEffect triggered - calling loadQuestions()');
     loadQuestions();
   }, []);
 
   const loadQuestions = async () => {
     try {
       setLoading(true);
+      console.log('Attempting to connect to Firestore...');
+      console.log('Database instance:', db);
+      
       const questionsRef = collection(db, 'QuizNClean');
+      console.log('Questions collection reference:', questionsRef);
+      
       const snapshot = await getDocs(questionsRef);
+      console.log('Snapshot received:', snapshot);
+      console.log('Snapshot size:', snapshot.size);
       
       const questionsData: QuizQuestion[] = [];
       snapshot.forEach((doc) => {
         const data = doc.data();
+        console.log('Processing document:', doc.id, data);
         questionsData.push({
           id: doc.id,
           QuizNClean_image: data.QuizNClean_image || '',
@@ -59,6 +69,11 @@ export function useQuiz() {
       console.log('Loaded quiz questions:', questionsData.length);
     } catch (error) {
       console.error('Error loading quiz questions:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
       // Fallback to hardcoded questions if Firebase fails
       setQuestions(getHardcodedQuestions());
     } finally {
@@ -75,6 +90,15 @@ export function useQuiz() {
     earnedBadges: string[]
   ) => {
     try {
+      console.log('Attempting to save quiz progress:', {
+        userId,
+        correctAnswers,
+        wrongAnswers,
+        totalQuestions,
+        timeSpent,
+        earnedBadges
+      });
+
       const progressData: Omit<QuizProgress, 'id'> = {
         userId,
         correctAnswers,
@@ -85,10 +109,17 @@ export function useQuiz() {
         timestamp: serverTimestamp()
       };
 
-      await addDoc(collection(db, 'quizProgress'), progressData);
-      console.log('Quiz progress saved successfully');
+      const docRef = await addDoc(collection(db, 'quizProgress'), progressData);
+      console.log('Quiz progress saved successfully with ID:', docRef.id);
+      return docRef.id;
     } catch (error) {
       console.error('Error saving quiz progress:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
+      throw error; // Re-throw to handle in calling function
     }
   };
 
@@ -100,6 +131,14 @@ export function useQuiz() {
     quizId: string
   ) => {
     try {
+      console.log('Attempting to save quiz badge:', {
+        userId,
+        badgeType,
+        badgeName,
+        description,
+        quizId
+      });
+
       const badgeData: Omit<QuizBadge, 'id'> = {
         userId,
         badgeType,
@@ -109,10 +148,34 @@ export function useQuiz() {
         timestamp: serverTimestamp()
       };
 
-      await addDoc(collection(db, 'quizBadges'), badgeData);
-      console.log('Quiz badge saved successfully');
+      const docRef = await addDoc(collection(db, 'quizBadges'), badgeData);
+      console.log('Quiz badge saved successfully with ID:', docRef.id);
+      return docRef.id;
     } catch (error) {
       console.error('Error saving quiz badge:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        stack: error.stack
+      });
+      throw error; // Re-throw to handle in calling function
+    }
+  };
+
+  // Test Firebase connectivity
+  const testFirebaseConnection = async () => {
+    try {
+      console.log('Testing Firebase connection...');
+      const testRef = collection(db, 'test');
+      const testDoc = await addDoc(testRef, { 
+        test: true, 
+        timestamp: serverTimestamp() 
+      });
+      console.log('Firebase connection test successful!', testDoc.id);
+      return true;
+    } catch (error) {
+      console.error('Firebase connection test failed:', error);
+      return false;
     }
   };
 
@@ -120,7 +183,8 @@ export function useQuiz() {
     questions,
     loading,
     saveProgress,
-    saveBadge
+    saveBadge,
+    testFirebaseConnection
   };
 }
 

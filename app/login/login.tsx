@@ -1,5 +1,5 @@
 import { signIn } from '@/config/auth';
-import { auth, db } from '@/config/firebase';
+import { db } from '@/config/firebase';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, type Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -47,6 +47,9 @@ export default function LoginScreen() {
       if (role === 'admin') {
         console.log('Routing to admin dashboard');
         router.push('/admin/dashboard' as Href);
+      } else if (role === 'unofficer') {
+        console.log('Routing to UN officer dashboard');
+        router.push('/unofficer/dashboard' as Href);
       } else {
         console.log('Checking child profile for student...');
         // Check if student has a child profile
@@ -138,6 +141,13 @@ export default function LoginScreen() {
 
             <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
               <Text style={styles.signUpButtonText}>Don't have account? <Text style={styles.signUpLink}>Register</Text></Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.unOfficerButton} 
+              onPress={() => router.push('/unofficer/login')}
+            >
+              <Text style={styles.unOfficerButtonText}>UN Officer Login</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -250,5 +260,20 @@ const styles = StyleSheet.create({
   signUpLink: {
     color: '#0052cc',
     fontWeight: '600',
+  },
+  unOfficerButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(30, 58, 138, 0.1)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#1e3a8a',
+  },
+  unOfficerButtonText: {
+    color: '#1e3a8a',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });

@@ -9,8 +9,9 @@ import { useAuth } from '../../hooks/useAuth';
 import { useQuiz } from '../../hooks/useQuiz';
 
 export default function QuizGameScreen() {
+  console.log('🎮 QuizGameScreen component loaded!');
   const { user } = useAuth();
-  const { questions, loading: questionsLoading, saveProgress, saveBadge } = useQuiz();
+  const { questions, loading: questionsLoading, saveProgress, saveBadge, testFirebaseConnection } = useQuiz();
   
   const [timeLeft, setTimeLeft] = useState(20);
   const [currentQuestion, setCurrentQuestion] = useState(1);
@@ -21,7 +22,9 @@ export default function QuizGameScreen() {
   const [isCorrect, setIsCorrect] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<any>(null);
   const [showTimeUp, setShowTimeUp] = useState(false);
+  const [showTimeWarning, setShowTimeWarning] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [isTimeUp, setIsTimeUp] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
   const [showTimeBadge, setShowTimeBadge] = useState(false);
@@ -34,9 +37,20 @@ export default function QuizGameScreen() {
   const floatingBadgeAnim = useRef(new Animated.Value(0)).current;
   const floatingBadgeScale = useRef(new Animated.Value(0)).current;
   const floatingBadgeOpacity = useRef(new Animated.Value(0)).current;
+  const questionBounceAnim = useRef(new Animated.Value(1)).current;
+  const answerBounceAnim1 = useRef(new Animated.Value(1)).current;
+  const answerBounceAnim2 = useRef(new Animated.Value(1)).current;
+  const confettiAnim = useRef(new Animated.Value(0)).current;
+  const confettiScale = useRef(new Animated.Value(0)).current;
 
   // Use Firebase data instead of hardcoded data
   const currentQuiz = questions[currentQuestion - 1];
+  console.log('📊 Current state:', { 
+    questionsLength: questions.length, 
+    currentQuestion, 
+    currentQuiz: currentQuiz ? 'exists' : 'null',
+    loading: questionsLoading 
+  });
 
   // Sound effect function
   const playBadgeSound = async () => {
@@ -145,8 +159,10 @@ export default function QuizGameScreen() {
       setIsCorrect(false);
       setSelectedAnswer(null);
       setShowTimeUp(false);
+      setShowTimeWarning(false);
       setShowResults(false);
       setShowCompletion(false);
+      setIsTimeUp(false);
       setEarnedBadges([]);
       setShowTimeBadge(false);
       setShowFloatingBadge(false);
@@ -164,9 +180,28 @@ export default function QuizGameScreen() {
       timerRef.current = setTimeout(() => {
         setTimeLeft(timeLeft - 1);
       }, 1000);
-    } else if (timeLeft === 0 && !showFeedback && !showTimeUp) {
-      // Time's up - show time up popup
-      setShowTimeUp(true);
+    } else if (timeLeft === 0 && !showFeedback && !showTimeUp && !showTimeWarning) {
+      // Time's up - show warning
+      setIsTimeUp(true);
+      setShowTimeWarning(true);
+      // Auto-transition to results after 3 seconds
+      setTimeout(() => {
+        setShowTimeWarning(false);
+        setShowResults(true);
+        // Start confetti animation
+        Animated.parallel([
+          Animated.timing(confettiScale, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+          }),
+          Animated.timing(confettiAnim, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }, 3000);
     }
 
     return () => {
@@ -198,6 +233,67 @@ export default function QuizGameScreen() {
       pulseAnim.setValue(1);
     }
   }, [timeLeft]);
+
+  // Bouncing animations for question and answers
+  useEffect(() => {
+    // Question bounce animation
+    const questionBounce = Animated.loop(
+      Animated.sequence([
+        Animated.timing(questionBounceAnim, {
+          toValue: 1.05,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(questionBounceAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    // Answer cards bounce animation (staggered)
+    const answerBounce1 = Animated.loop(
+      Animated.sequence([
+        Animated.timing(answerBounceAnim1, {
+          toValue: 1.03,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(answerBounceAnim1, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    const answerBounce2 = Animated.loop(
+      Animated.sequence([
+        Animated.delay(750), // Stagger the second card
+        Animated.timing(answerBounceAnim2, {
+          toValue: 1.03,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(answerBounceAnim2, {
+          toValue: 1,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    questionBounce.start();
+    answerBounce1.start();
+    answerBounce2.start();
+
+    return () => {
+      questionBounce.stop();
+      answerBounce1.stop();
+      answerBounce2.stop();
+    };
+  }, [currentQuestion]);
 
 
   const handleTimeUp = () => {
@@ -239,11 +335,35 @@ export default function QuizGameScreen() {
       setCurrentQuestion(currentQuestion + 1);
       // Don't reset timer - keep it at 20 for all questions
     } else {
-      // Quiz finished - check for time badge
+      // Quiz finished - pause timer and show results
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      
+      // Mark as completed on time (not time up)
+      setIsTimeUp(false);
+      
+      // Check for time badge
       if (timeLeft >= 10) {
         showBadgeAnimation('time');
       }
-      setShowCompletion(true);
+      
+      // Go directly to results with confetti
+      setShowResults(true);
+      // Start confetti animation
+      Animated.parallel([
+        Animated.timing(confettiScale, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(confettiAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]).start();
+      
       // Save progress to Firebase
       saveQuizProgress();
     }
@@ -257,8 +377,17 @@ export default function QuizGameScreen() {
       const timeSpent = Math.round((Date.now() - startTime) / 1000);
       const totalQuestions = questions.length;
       
+      console.log('Starting to save quiz progress...', {
+        userId,
+        correctAnswers,
+        wrongAnswers,
+        totalQuestions,
+        timeSpent,
+        earnedBadges
+      });
+      
       // Save progress to Firebase
-      await saveProgress(
+      const progressId = await saveProgress(
         userId,
         correctAnswers,
         wrongAnswers,
@@ -267,6 +396,8 @@ export default function QuizGameScreen() {
         earnedBadges
       );
 
+      console.log('Progress saved with ID:', progressId);
+
       // Save badges to Firebase
       for (const badgeType of earnedBadges) {
         const badgeName = badgeType === 'time' ? 'Speed Master' : 'Medal Master';
@@ -274,18 +405,29 @@ export default function QuizGameScreen() {
           ? 'Completed quiz in under 2 minutes' 
           : 'Got 5 correct answers in a row';
         
-        await saveBadge(
+        const badgeId = await saveBadge(
           userId,
           badgeType as 'time' | 'medal' | 'streak' | 'perfect',
           badgeName,
           description,
           `quiz-${Date.now()}`
         );
+        
+        console.log('Badge saved with ID:', badgeId);
       }
 
-      console.log('Quiz progress saved to Firebase!', { userId, score: Math.round((correctAnswers / totalQuestions) * 100) });
+      console.log('Quiz progress saved to Firebase successfully!', { 
+        userId, 
+        score: Math.round((correctAnswers / totalQuestions) * 100),
+        progressId 
+      });
     } catch (error) {
       console.error('Error saving quiz progress:', error);
+      console.error('Full error details:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      });
     }
   };
 
@@ -363,14 +505,30 @@ export default function QuizGameScreen() {
             styles.timer, 
             { 
               transform: [{ scale: pulseAnim }],
-              backgroundColor: timeLeft <= 5 ? '#FF4444' : '#B8D4FD',
-              borderColor: timeLeft <= 5 ? '#CC0000' : '#0A3AAB'
+              backgroundColor: timeLeft <= 5 ? '#FF6B6B' : '#1E3A8A',
+              borderColor: timeLeft <= 5 ? '#DC2626' : '#3B82F6'
             }
           ]}>
-            <Text style={[
-              styles.timerText,
-              { color: timeLeft <= 5 ? 'white' : 'white' }
-            ]}>{timeLeft}</Text>
+            {/* Digital Clock Display */}
+            <View style={styles.digitalClock}>
+              <View style={[
+                styles.digitalTimeContainer,
+                { backgroundColor: timeLeft <= 5 ? 'rgba(255, 107, 107, 0.2)' : 'rgba(59, 130, 246, 0.2)' }
+              ]}>
+                <Text style={[
+                  styles.digitalTime,
+                  { color: timeLeft <= 5 ? '#FEF2F2' : '#E0F2FE' }
+                ]}>
+                  {timeLeft.toString().padStart(2, '0')}
+                </Text>
+              </View>
+              <Text style={[
+                styles.digitalLabel,
+                { color: timeLeft <= 5 ? '#FEF2F2' : '#E0F2FE' }
+              ]}>
+                SEC
+              </Text>
+            </View>
           </Animated.View>
 
           {/* Badges */}
@@ -399,7 +557,10 @@ export default function QuizGameScreen() {
 
         {/* Question Area */}
         <View style={styles.questionArea}>
-          <View style={styles.questionCard}>
+          <Animated.View style={[
+            styles.questionCard,
+            { transform: [{ scale: questionBounceAnim }] }
+          ]}>
             {currentQuiz?.QuizNClean_image === "rotten_apple" ? (
               <Image
                 source={require('../../assets/quiz/rotten_apple.png')}
@@ -451,20 +612,31 @@ export default function QuizGameScreen() {
             ) : (
               <Text style={styles.questionImage}>{currentQuiz?.QuizNClean_image || 'Loading...'}</Text>
             )}
-          </View>
+          </Animated.View>
         </View>
 
         {/* Answer Choices */}
         <View style={styles.answerContainer}>
-          {currentQuiz?.QuizNClean_options?.map((option) => (
-            <TouchableOpacity
-              key={option.id}
-              style={[
-                styles.answerCard,
-                selectedAnswer?.id === option.id && styles.selectedAnswerCard
-              ]}
-              onPress={() => handleAnswer(option)}
-            >
+          {currentQuiz?.QuizNClean_options?.map((option, index) => (
+            <View key={option.id} style={styles.answerWrapper}>
+              {/* A/B Label */}
+              <View style={styles.answerLabel}>
+                <Text style={styles.answerLabelText}>
+                  {index === 0 ? 'A' : 'B'}
+                </Text>
+              </View>
+              
+              {/* Answer Card */}
+              <Animated.View style={[
+                { transform: [{ scale: index === 0 ? answerBounceAnim1 : answerBounceAnim2 }] }
+              ]}>
+                <TouchableOpacity
+                  style={[
+                    styles.answerCard,
+                    selectedAnswer?.id === option.id && styles.selectedAnswerCard
+                  ]}
+                  onPress={() => handleAnswer(option)}
+                >
               {option.icon === "rotten_apple_throw" ? (
                 <Image
                   source={require('../../assets/quiz/rotten_apple_throw.png')}
@@ -564,7 +736,9 @@ export default function QuizGameScreen() {
               ) : (
                 <Text style={styles.answerIcon}>{option.icon}</Text>
               )}
-            </TouchableOpacity>
+                </TouchableOpacity>
+              </Animated.View>
+            </View>
           ))}
         </View>
 
@@ -597,72 +771,116 @@ export default function QuizGameScreen() {
           </View>
         )}
 
-        {/* Time's Up Popup */}
-        {showTimeUp && (
-          <View style={styles.feedbackOverlay}>
-            <View style={[styles.feedbackPopup, { backgroundColor: '#FFB3B3' }]}>
-              <View style={styles.feedbackContent}>
-                <View style={styles.feedbackIcon}>
-                  <Ionicons name="time" size={24} color="white" />
-                </View>
-                <Text style={styles.feedbackText}>Time's over!</Text>
+        {/* Time Warning Popup */}
+        {showTimeWarning && (
+          <View style={styles.centerOverlay}>
+            <Animated.View style={[
+              styles.timeWarningPopup,
+              { 
+                transform: [
+                  { scale: confettiScale },
+                  { translateY: confettiAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [50, 0]
+                  })}
+                ],
+                opacity: confettiAnim
+              }
+            ]}>
+              <View style={styles.warningIcon}>
+                <Ionicons name="warning" size={60} color="#FF6B6B" />
               </View>
-              <TouchableOpacity 
-                style={styles.continueButton}
-                onPress={handleSeeResults}
-              >
-                <Text style={styles.continueButtonText}>See Results</Text>
-              </TouchableOpacity>
-            </View>
+              <Text style={styles.warningTitle}>Time's Up! ⏰</Text>
+              <Text style={styles.warningSubtitle}>Let's see how you did!</Text>
+            </Animated.View>
           </View>
         )}
 
-        {/* Results Popup */}
+        {/* Results Popup with Confetti */}
         {showResults && (
-          <View style={styles.feedbackOverlay}>
-            <View style={[styles.feedbackPopup, { backgroundColor: '#B8E6B8' }]}>
-              <View style={styles.feedbackContent}>
-                <View style={styles.feedbackIcon}>
-                  <Ionicons name="trophy" size={24} color="white" />
-                </View>
-                <Text style={styles.feedbackText}>
-                  You got {score} out of {questions.length} correct!
+          <View style={styles.centerOverlay}>
+            {/* Confetti Animation */}
+            <Animated.View style={[
+              styles.confettiContainer,
+              { 
+                transform: [
+                  { scale: confettiScale },
+                  { rotate: confettiAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['0deg', '360deg']
+                  })}
+                ],
+                opacity: confettiAnim
+              }
+            ]}>
+              <Text style={styles.confetti}>🎉</Text>
+              <Text style={[styles.confetti, { marginTop: 20, marginLeft: 30 }]}>✨</Text>
+              <Text style={[styles.confetti, { marginTop: -10, marginRight: 40 }]}>🎊</Text>
+              <Text style={[styles.confetti, { marginTop: 30, marginLeft: -20 }]}>🌟</Text>
+              <Text style={[styles.confetti, { marginTop: -20, marginRight: -30 }]}>🎈</Text>
+            </Animated.View>
+
+            <Animated.View style={[
+              styles.resultsPopup,
+              { 
+                backgroundColor: isTimeUp ? '#FFE5E5' : '#E8F5E8',
+                borderColor: isTimeUp ? '#FF6B6B' : '#4CAF50',
+                transform: [
+                  { scale: confettiScale },
+                  { translateY: confettiAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [50, 0]
+                  })}
+                ],
+                opacity: confettiAnim
+              }
+            ]}>
+              <View style={styles.resultsIcon}>
+                <Ionicons 
+                  name={isTimeUp ? "time" : "trophy"} 
+                  size={50} 
+                  color={isTimeUp ? "#FF6B6B" : "#FFD700"} 
+                />
+              </View>
+              <Text style={[
+                styles.resultsTitle,
+                { color: isTimeUp ? '#FF6B6B' : '#4CAF50' }
+              ]}>
+                {isTimeUp ? 'Time\'s Up! ⏰' : 'Great Job! 🎉'}
+              </Text>
+              <Text style={[
+                styles.resultsSubtitle,
+                { color: isTimeUp ? '#FF6B6B' : '#4CAF50' }
+              ]}>
+                {isTimeUp ? 'Better luck next time!' : 'Quiz Complete!'}
+              </Text>
+              <View style={styles.scoreContainer}>
+                <Text style={[
+                  styles.scoreText,
+                  { color: isTimeUp ? '#FF6B6B' : '#4CAF50' }
+                ]}>
+                  Score: {score}
+                </Text>
+                <Text style={[
+                  styles.statsText,
+                  { color: isTimeUp ? '#FF6B6B' : '#4CAF50' }
+                ]}>
+                  Correct: {correctAnswers} | Wrong: {wrongAnswers}
                 </Text>
               </View>
               <TouchableOpacity 
-                style={styles.continueButton}
+                style={[
+                  styles.continueButton,
+                  { backgroundColor: isTimeUp ? '#FF6B6B' : '#4CAF50' }
+                ]}
                 onPress={handleBackToHome}
               >
                 <Text style={styles.continueButtonText}>Back to Home</Text>
               </TouchableOpacity>
-            </View>
+            </Animated.View>
           </View>
         )}
 
-        {/* Completion Popup */}
-        {showCompletion && (
-          <View style={styles.feedbackOverlay}>
-            <View style={[styles.feedbackPopup, { backgroundColor: '#B8E6B8' }]}>
-              <View style={styles.feedbackContent}>
-                <View style={styles.feedbackIcon}>
-                  <Ionicons name="checkmark-circle" size={24} color="white" />
-                </View>
-                <Text style={styles.feedbackText}>
-                  Quiz Complete!
-                </Text>
-              </View>
-              <Text style={styles.scoreText}>
-                You got {score} out of {questions.length} correct!
-              </Text>
-              <TouchableOpacity 
-                style={styles.continueButton}
-                onPress={handleBackToHome}
-              >
-                <Text style={styles.continueButtonText}>Back to Home</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
 
         {/* Floating Badge Animation */}
         {showFloatingBadge && (
@@ -714,36 +932,78 @@ const styles = StyleSheet.create({
     backgroundColor: '#A8C8E8',
   },
   timer: {
-    marginTop:30,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 2,
+    marginTop: 20,
+    width: 90,
+    height: 60,
+    borderRadius: 12,
+    borderWidth: 3,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 8,
+    position: 'relative',
   },
-  timerText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  questionNumberContainer: {
-
+  digitalClock: {
+    flexDirection: 'column',
     alignItems: 'center',
-    paddingVertical: 10,
+    justifyContent: 'center',
   },
-  questionNumber: {
-    backgroundColor: '#B8D4FD',
-    borderWidth: 2,
-    borderColor: '#0A3AAB',
+  digitalTimeContainer: {
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 4,
+    marginBottom: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  digitalTime: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    fontFamily: 'monospace',
+    textShadowColor: 'rgba(0, 0, 0, 0.8)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
+    letterSpacing: 2,
+  },
+  digitalLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  questionNumberContainer: {
+    alignItems: 'center',
+    paddingVertical: 15,
+  },
+  questionNumber: {
+    backgroundColor: '#3B82F6',
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    shadowColor: '#3B82F6',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 8,
   },
   questionNumberText: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#0A3AAB',
+    color: 'white',
+    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 3,
   },
   rightIcons: {
     flexDirection: 'row',
@@ -859,11 +1119,40 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     paddingBottom: 60,
   },
+  answerWrapper: {
+    width: '51%',
+    alignItems: 'center',
+  },
+  answerLabel: {
+    backgroundColor: '#3B82F6',
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    shadowColor: '#3B82F6',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  answerLabelText: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white',
+    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 3,
+  },
   answerCard: {
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 14,
-    width: '51%',
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -990,5 +1279,97 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+  centerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  timeWarningPopup: {
+    backgroundColor: '#FFE5E5',
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+    borderWidth: 3,
+    borderColor: '#FF6B6B',
+  },
+  warningIcon: {
+    marginBottom: 15,
+  },
+  warningTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#FF6B6B',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  warningSubtitle: {
+    fontSize: 18,
+    color: '#666',
+    textAlign: 'center',
+  },
+  confettiContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  confetti: {
+    fontSize: 40,
+    position: 'absolute',
+  },
+  resultsPopup: {
+    backgroundColor: '#E8F5E8',
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+    borderWidth: 3,
+    borderColor: '#4CAF50',
+    zIndex: 1001,
+  },
+  resultsIcon: {
+    marginBottom: 15,
+  },
+  resultsTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  resultsSubtitle: {
+    fontSize: 20,
+    color: '#666',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  scoreContainer: {
+    marginBottom: 20,
   },
 });
