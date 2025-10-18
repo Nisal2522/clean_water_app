@@ -86,15 +86,14 @@ The app follows the **Design Thinking Framework** to ensure human-centered desig
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/yourusername/hygiene-hero.git
-cd hygiene-hero
+git clone https://github.com/sinalii/hygiene_games.git
+cd hygiene_games
 
 ## 🚀 Get Started
 
 Follow these simple steps to set up and run your Expo app 👇
 
 ### 1️⃣ Install Dependencies
-Make sure you’re inside your project folder, then run:
+Make sure you're inside your project folder, then run:
 ```bash
 npm install
-
