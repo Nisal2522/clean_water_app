@@ -1,22 +1,21 @@
+import { auth, db } from '@/config/firebase';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { signOut } from 'firebase/auth';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  RefreshControl,
+    ActivityIndicator,
+    Alert,
+    Image,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { auth, db } from '@/config/firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
 
 interface ChildProfile {
   name: string;
@@ -268,7 +267,7 @@ export default function StudentDashboard() {
 
           <TouchableOpacity 
             style={styles.card}
-            onPress={() => Alert.alert('Coming Soon', 'Progress tracking will be available soon!')}
+            onPress={() => router.push('/student/progress')}
           >
             <LinearGradient
               colors={['#10b981', '#34d399']}

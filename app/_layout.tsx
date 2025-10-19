@@ -24,7 +24,9 @@ export default function RootLayout() {
         <Stack.Screen name="login/login" options={{ headerShown: false }} />
         <Stack.Screen name="register/register" options={{ headerShown: false }} />
         <Stack.Screen name="child_profile/child_profile" options={{ headerShown: false }} />
+        <Stack.Screen name="avatar_section/index" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="student/dashboard" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="student/progress" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="handwashing-hero" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="student/lesson-dashboard" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="student/lesson-quiz-page" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
@@ -38,13 +40,20 @@ export default function RootLayout() {
         <Stack.Screen name="admin/view-lessons" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="admin/update-lesson" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="admin/delete-lesson" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
-        <Stack.Screen name="QuizGame" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="QuizGame/index" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="QuizGame/welcome" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="QuizGame/instructions" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="QuizGame/quiz-game" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
-        <Stack.Screen name="GermLabFolder" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="GermLabFolder/index" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         <Stack.Screen name="GermLabFolder/game" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="unofficer/login" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="unofficer/dashboard" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="unofficer/create-quiz" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="unofficer/delete-quiz" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="unofficer/edit-main-quiz" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="unofficer/edit-quiz" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="unofficer/quiz-analytics" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
+        <Stack.Screen name="unofficer/view-quizzes" options={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider>

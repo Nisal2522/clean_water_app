@@ -1,19 +1,20 @@
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  deleteDoc,
-  query,
-  orderBy,
-  limit
+import {
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    getDocs,
+    limit,
+    orderBy,
+    query,
+    updateDoc
 } from 'firebase/firestore';
 import { db } from '../firebase.config';
 
 // Game data collection
 const GAME_DATA_COLLECTION = 'gameData';
 const PLAYER_SCORES_COLLECTION = 'playerScores';
+const GERMBUSTER_COLLECTION = 'germbuster';
 
 // Analytics Events
 export const ANALYTICS_EVENTS = {
@@ -137,6 +138,28 @@ export const deleteGameSession = async (sessionId) => {
     console.log('Game session deleted:', sessionId);
   } catch (error) {
     console.error('Error deleting game session:', error);
+    throw error;
+  }
+};
+
+// Save GermBuster Lab game data
+export const saveGermBusterData = async (gameData) => {
+  try {
+    const germBusterData = {
+      createdAt: new Date().toISOString(),
+      level: gameData.level || 1,
+      playerName: gameData.playerName || 'Anonymous',
+      score: gameData.score || 0,
+      testConnection: gameData.testConnection || 'success',
+      timestamp: new Date()
+    };
+    
+    const docRef = await addDoc(collection(db, GERMBUSTER_COLLECTION), germBusterData);
+    console.log('GermBuster data saved with ID:', docRef.id);
+    console.log('GermBuster data:', germBusterData);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error saving GermBuster data:', error);
     throw error;
   }
 };

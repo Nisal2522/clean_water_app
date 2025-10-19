@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { Audio } from 'expo-av';
+import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -13,7 +14,7 @@ export default function QuizGameScreen() {
   const { user } = useAuth();
   const { questions, loading: questionsLoading, saveProgress, saveBadge, testFirebaseConnection } = useQuiz();
   
-  const [timeLeft, setTimeLeft] = useState(20);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [score, setScore] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState(0);
@@ -42,6 +43,10 @@ export default function QuizGameScreen() {
   const answerBounceAnim2 = useRef(new Animated.Value(1)).current;
   const confettiAnim = useRef(new Animated.Value(0)).current;
   const confettiScale = useRef(new Animated.Value(0)).current;
+  const answerPressAnim = useRef(new Animated.Value(1)).current;
+  const questionSlideAnim = useRef(new Animated.Value(0)).current;
+  const scoreCountAnim = useRef(new Animated.Value(0)).current;
+  const particleAnim = useRef(new Animated.Value(0)).current;
 
   // Use Firebase data instead of hardcoded data
   const currentQuiz = questions[currentQuestion - 1];
@@ -84,6 +89,9 @@ export default function QuizGameScreen() {
   // Badge animation function
   const showBadgeAnimation = (badgeType: string) => {
     if (earnedBadges.includes(badgeType)) return; // Don't show if already earned
+    
+    // Special haptic for badge earned
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     
     // Play magical sound effect
     playBadgeSound();
@@ -152,7 +160,7 @@ export default function QuizGameScreen() {
   // Reset timer when screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
-      setTimeLeft(20);
+      setTimeLeft(30);
       setCurrentQuestion(1);
       setScore(0);
       setShowFeedback(false);
@@ -181,7 +189,8 @@ export default function QuizGameScreen() {
         setTimeLeft(timeLeft - 1);
       }, 1000);
     } else if (timeLeft === 0 && !showFeedback && !showTimeUp && !showTimeWarning) {
-      // Time's up - show warning
+      // Time's up - show warning with haptic
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       setIsTimeUp(true);
       setShowTimeWarning(true);
       // Auto-transition to results after 3 seconds
@@ -200,6 +209,11 @@ export default function QuizGameScreen() {
             duration: 1000,
             useNativeDriver: true,
           }),
+          Animated.timing(particleAnim, {
+            toValue: 1,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
         ]).start();
       }, 3000);
     }
@@ -214,7 +228,12 @@ export default function QuizGameScreen() {
 
   // Pulse animation for timer
   useEffect(() => {
-    if (timeLeft <= 5) {
+    if (timeLeft <= 10) {
+      // Haptic warning for low time
+      if (timeLeft === 10) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      }
+      
       Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
@@ -302,11 +321,45 @@ export default function QuizGameScreen() {
   };
 
   const handleAnswer = (option: any) => {
+    // Haptic feedback for answer selection
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    
+    // Answer press animation
+    Animated.sequence([
+      Animated.timing(answerPressAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(answerPressAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
     setSelectedAnswer(option);
     setIsCorrect(option.correct);
     setShowFeedback(true);
     
     if (option.correct) {
+      // Success haptic feedback
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      
+      // Success animation
+      Animated.sequence([
+        Animated.timing(answerPressAnim, {
+          toValue: 1.1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(answerPressAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
       const newScore = score + 1;
       const newCorrectAnswers = correctAnswers + 1;
       const newStreak = correctStreak + 1;
@@ -314,11 +367,45 @@ export default function QuizGameScreen() {
       setCorrectAnswers(newCorrectAnswers);
       setCorrectStreak(newStreak);
       
+      // Animate score counting
+      Animated.timing(scoreCountAnim, {
+        toValue: newScore,
+        duration: 500,
+        useNativeDriver: false,
+      }).start();
+      
       // Check for medal badge (5 correct answers in a row)
       if (newStreak === 5) {
         showBadgeAnimation('medal');
       }
     } else {
+      // Error haptic feedback
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      
+      // Shake animation for wrong answer
+      Animated.sequence([
+        Animated.timing(answerPressAnim, {
+          toValue: 0.9,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(answerPressAnim, {
+          toValue: 1.05,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(answerPressAnim, {
+          toValue: 0.95,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(answerPressAnim, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
       const newWrongAnswers = wrongAnswers + 1;
       setWrongAnswers(newWrongAnswers);
       // Reset streak on wrong answer
@@ -327,13 +414,33 @@ export default function QuizGameScreen() {
   };
 
   const handleContinue = () => {
+    // Light haptic for continue button
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    // Reset animations
+    answerPressAnim.setValue(1);
+    
     setShowFeedback(false);
     setSelectedAnswer(null);
     
     // Move to next question
     if (currentQuestion < questions.length) {
+      // Question transition animation
+      Animated.sequence([
+        Animated.timing(questionSlideAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(questionSlideAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+      
       setCurrentQuestion(currentQuestion + 1);
-      // Don't reset timer - keep it at 20 for all questions
+      // Don't reset timer - keep it at 30 for all questions
     } else {
       // Quiz finished - pause timer and show results
       if (timerRef.current) {
@@ -360,6 +467,11 @@ export default function QuizGameScreen() {
         Animated.timing(confettiAnim, {
           toValue: 1,
           duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(particleAnim, {
+          toValue: 1,
+          duration: 2000,
           useNativeDriver: true,
         }),
       ]).start();
@@ -437,6 +549,7 @@ export default function QuizGameScreen() {
   };
 
   const handleBackToHome = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.back();
   };
 
@@ -505,26 +618,26 @@ export default function QuizGameScreen() {
             styles.timer, 
             { 
               transform: [{ scale: pulseAnim }],
-              backgroundColor: timeLeft <= 5 ? '#FF6B6B' : '#1E3A8A',
-              borderColor: timeLeft <= 5 ? '#DC2626' : '#3B82F6'
+              backgroundColor: timeLeft <= 10 ? '#FF6B6B' : '#1E3A8A',
+              borderColor: timeLeft <= 10 ? '#DC2626' : '#3B82F6'
             }
           ]}>
             {/* Digital Clock Display */}
             <View style={styles.digitalClock}>
               <View style={[
                 styles.digitalTimeContainer,
-                { backgroundColor: timeLeft <= 5 ? 'rgba(255, 107, 107, 0.2)' : 'rgba(59, 130, 246, 0.2)' }
+                { backgroundColor: timeLeft <= 10 ? 'rgba(255, 107, 107, 0.2)' : 'rgba(59, 130, 246, 0.2)' }
               ]}>
                 <Text style={[
                   styles.digitalTime,
-                  { color: timeLeft <= 5 ? '#FEF2F2' : '#E0F2FE' }
+                  { color: timeLeft <= 10 ? '#FEF2F2' : '#E0F2FE' }
                 ]}>
                   {timeLeft.toString().padStart(2, '0')}
                 </Text>
               </View>
               <Text style={[
                 styles.digitalLabel,
-                { color: timeLeft <= 5 ? '#FEF2F2' : '#E0F2FE' }
+                { color: timeLeft <= 10 ? '#FEF2F2' : '#E0F2FE' }
               ]}>
                 SEC
               </Text>
@@ -559,7 +672,21 @@ export default function QuizGameScreen() {
         <View style={styles.questionArea}>
           <Animated.View style={[
             styles.questionCard,
-            { transform: [{ scale: questionBounceAnim }] }
+            { 
+              transform: [
+                { scale: questionBounceAnim },
+                { 
+                  translateX: questionSlideAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 30]
+                  })
+                }
+              ],
+              opacity: questionSlideAnim.interpolate({
+                inputRange: [0, 0.5, 1],
+                outputRange: [1, 0.3, 1]
+              })
+            }
           ]}>
             {currentQuiz?.QuizNClean_image === "rotten_apple" ? (
               <Image
@@ -609,6 +736,12 @@ export default function QuizGameScreen() {
                 style={styles.questionImage}
                 resizeMode="contain"
               />
+            ) : currentQuiz?.QuizNClean_image === "cake" ? (
+              <Image
+                source={require('../../assets/quiz/cake.png')}
+                style={styles.questionImage}
+                resizeMode="contain"
+              />
             ) : (
               <Text style={styles.questionImage}>{currentQuiz?.QuizNClean_image || 'Loading...'}</Text>
             )}
@@ -628,12 +761,31 @@ export default function QuizGameScreen() {
               
               {/* Answer Card */}
               <Animated.View style={[
-                { transform: [{ scale: index === 0 ? answerBounceAnim1 : answerBounceAnim2 }] }
+                { 
+                  transform: [
+                    { scale: Animated.multiply(
+                      index === 0 ? answerBounceAnim1 : answerBounceAnim2,
+                      answerPressAnim
+                    )},
+                    { 
+                      translateX: questionSlideAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, index === 0 ? -20 : 20]
+                      })
+                    }
+                  ]
+                }
               ]}>
                 <TouchableOpacity
                   style={[
                     styles.answerCard,
-                    selectedAnswer?.id === option.id && styles.selectedAnswerCard
+                    selectedAnswer?.id === option.id && styles.selectedAnswerCard,
+                    isCorrect && selectedAnswer?.id === option.id && {
+                      shadowColor: '#4CAF50',
+                      shadowOpacity: 0.4,
+                      shadowRadius: 15,
+                      elevation: 10,
+                    }
                   ]}
                   onPress={() => handleAnswer(option)}
                 >
@@ -733,6 +885,18 @@ export default function QuizGameScreen() {
                   style={styles.answerIcon}
                   resizeMode="contain"
                 />
+              ) : option.icon === "cake_lick" ? (
+                <Image
+                  source={require('../../assets/quiz/cake_lick.png')}
+                  style={styles.answerIcon}
+                  resizeMode="contain"
+                />
+              ) : option.icon === "cake_spoon" ? (
+                <Image
+                  source={require('../../assets/quiz/cake_spoon.png')}
+                  style={styles.answerIcon}
+                  resizeMode="contain"
+                />
               ) : (
                 <Text style={styles.answerIcon}>{option.icon}</Text>
               )}
@@ -813,11 +977,109 @@ export default function QuizGameScreen() {
                 opacity: confettiAnim
               }
             ]}>
-              <Text style={styles.confetti}>🎉</Text>
-              <Text style={[styles.confetti, { marginTop: 20, marginLeft: 30 }]}>✨</Text>
-              <Text style={[styles.confetti, { marginTop: -10, marginRight: 40 }]}>🎊</Text>
-              <Text style={[styles.confetti, { marginTop: 30, marginLeft: -20 }]}>🌟</Text>
-              <Text style={[styles.confetti, { marginTop: -20, marginRight: -30 }]}>🎈</Text>
+              <Animated.Text style={[
+                styles.confetti,
+                {
+                  transform: [
+                    { 
+                      translateY: particleAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -50]
+                      })
+                    },
+                    { 
+                      rotate: particleAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['0deg', '180deg']
+                      })
+                    }
+                  ]
+                }
+              ]}>🎉</Animated.Text>
+              <Animated.Text style={[
+                styles.confetti, 
+                { 
+                  marginTop: 20, 
+                  marginLeft: 30,
+                  transform: [
+                    { 
+                      translateY: particleAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -30]
+                      })
+                    },
+                    { 
+                      rotate: particleAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['0deg', '-90deg']
+                      })
+                    }
+                  ]
+                }
+              ]}>✨</Animated.Text>
+              <Animated.Text style={[
+                styles.confetti, 
+                { 
+                  marginTop: -10, 
+                  marginRight: 40,
+                  transform: [
+                    { 
+                      translateY: particleAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -40]
+                      })
+                    },
+                    { 
+                      rotate: particleAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['0deg', '90deg']
+                      })
+                    }
+                  ]
+                }
+              ]}>🎊</Animated.Text>
+              <Animated.Text style={[
+                styles.confetti, 
+                { 
+                  marginTop: 30, 
+                  marginLeft: -20,
+                  transform: [
+                    { 
+                      translateY: particleAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -60]
+                      })
+                    },
+                    { 
+                      rotate: particleAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['0deg', '270deg']
+                      })
+                    }
+                  ]
+                }
+              ]}>🌟</Animated.Text>
+              <Animated.Text style={[
+                styles.confetti, 
+                { 
+                  marginTop: -20, 
+                  marginRight: -30,
+                  transform: [
+                    { 
+                      translateY: particleAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, -35]
+                      })
+                    },
+                    { 
+                      rotate: particleAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['0deg', '-180deg']
+                      })
+                    }
+                  ]
+                }
+              ]}>🎈</Animated.Text>
             </Animated.View>
 
             <Animated.View style={[
@@ -1093,8 +1355,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 15,
     padding: 5,
-    width: 364,
-    height: 258,
+    width: 280,
+    height: 200,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -1109,8 +1371,8 @@ const styles = StyleSheet.create({
   questionImage: {
     fontSize: 120,
     textAlign: 'center',
-    width: 350,
-    height: 250,
+    width: 270,
+    height: 190,
   },
   answerContainer: {
     marginTop:-250,
@@ -1120,7 +1382,7 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
   answerWrapper: {
-    width: '51%',
+    width: '48%',
     alignItems: 'center',
   },
   answerLabel: {
@@ -1151,7 +1413,7 @@ const styles = StyleSheet.create({
   answerCard: {
     backgroundColor: 'white',
     borderRadius: 20,
-    padding: 14,
+    padding: 10,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1167,8 +1429,8 @@ const styles = StyleSheet.create({
   answerIcon: {
     fontSize: 60,
     textAlign: 'center',
-    width: 180,
-    height: 180,
+    width: 140,
+    height: 140,
   },
   selectedAnswerCard: {
     backgroundColor: '#E3F2FD',

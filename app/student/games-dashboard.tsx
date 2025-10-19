@@ -1,16 +1,14 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { push } from 'expo-router/build/global-state/routing';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import {
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 export default function GamingDashboard() {
@@ -30,7 +28,7 @@ export default function GamingDashboard() {
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButtonText}>
+          <TouchableOpacity onPress={() => router.push('/student/dashboard')} style={styles.backButtonText}>
             <Image
               source={require('../../assets/backArrow.png')}
               style={{ width: 24, height: 24, tintColor: '#0052cc' }}

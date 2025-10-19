@@ -2,14 +2,14 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Image } from 'expo-image';
 import { Stack, router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useFirebase } from '../../contexts/FirebaseContext';
 
 export default function GameScreen() {
 	// Firebase integration
-	const { startGameSession, completeScenario, completeGame, logToolSelection } = useFirebase();
+	const { startGameSession, completeScenario, completeGame, logToolSelection, sendGermBusterData } = useFirebase();
 	
 	// Game state
 	const [currentImage, setCurrentImage] = useState('GarbagePile');
@@ -72,6 +72,11 @@ export default function GameScreen() {
 	// Score animation values
 	const scoreScale = useSharedValue(1);
 	const scoreColor = useSharedValue(0); // 0 for normal, 1 for positive, -1 for negative
+	
+	// Refs for animation functions to avoid scope issues
+	const titleAnimationRef = useRef<(() => void) | null>(null);
+	const toolsAnimationRef = useRef<(() => void) | null>(null);
+	const heroAnimationRef = useRef<(() => void) | null>(null);
 
 	// Start animation when component mounts
 	useEffect(() => {
@@ -80,6 +85,14 @@ export default function GameScreen() {
 			try {
 				await startGameSession('Player');
 				setGameStartTime(Date.now());
+				
+				// Send initial GermBuster data
+				await sendGermBusterData({
+					level: 1,
+					playerName: 'Player',
+					score: 0,
+					testConnection: 'success'
+				});
 			} catch (error) {
 				console.error('Error initializing game session:', error);
 			}
@@ -95,24 +108,35 @@ export default function GameScreen() {
 
 		// Start title pulsing animation
 		const startTitleAnimation = () => {
-			titleScale.value = withTiming(1.1, { duration: 1500 }, () => {
-				titleScale.value = withTiming(1, { duration: 1500 }, startTitleAnimation);
-			});
+			titleScale.value = withTiming(1.1, { duration: 1500 });
+			setTimeout(() => {
+				titleScale.value = withTiming(1, { duration: 1500 });
+				setTimeout(startTitleAnimation, 3000);
+			}, 1500);
 		};
 		
 		// Start tools pulsing animation
 		const startToolsAnimation = () => {
-			toolsScale.value = withTiming(1.05, { duration: 2000 }, () => {
-				toolsScale.value = withTiming(1, { duration: 2000 }, startToolsAnimation);
-			});
+			toolsScale.value = withTiming(1.05, { duration: 2000 });
+			setTimeout(() => {
+				toolsScale.value = withTiming(1, { duration: 2000 });
+				setTimeout(startToolsAnimation, 4000);
+			}, 2000);
 		};
 		
 		// Start hero image pulsing animation
 		const startHeroAnimation = () => {
-			heroScale.value = withTiming(1.08, { duration: 2500 }, () => {
-				heroScale.value = withTiming(1, { duration: 2500 }, startHeroAnimation);
-			});
+			heroScale.value = withTiming(1.08, { duration: 2500 });
+			setTimeout(() => {
+				heroScale.value = withTiming(1, { duration: 2500 });
+				setTimeout(startHeroAnimation, 5000);
+			}, 2500);
 		};
+		
+		// Store animation functions in refs
+		titleAnimationRef.current = startTitleAnimation;
+		toolsAnimationRef.current = startToolsAnimation;
+		heroAnimationRef.current = startHeroAnimation;
 		
 		// Start all pulsing animations immediately
 		startTitleAnimation();
@@ -127,18 +151,24 @@ export default function GameScreen() {
 		setScore(prevScore => prevScore + points);
 		
 		// Animate score change
-		scoreScale.value = withTiming(1.3, { duration: 200 }, () => {
-			scoreScale.value = withTiming(1, { duration: 200 });
+		scoreScale.value = withTiming(1.3, { duration: 200 }, (finished) => {
+			if (finished) {
+				scoreScale.value = withTiming(1, { duration: 200 });
+			}
 		});
 		
 		// Set color based on positive or negative change
 		if (points > 0) {
-			scoreColor.value = withTiming(1, { duration: 300 }, () => {
-				scoreColor.value = withTiming(0, { duration: 700 });
+			scoreColor.value = withTiming(1, { duration: 300 }, (finished) => {
+				if (finished) {
+					scoreColor.value = withTiming(0, { duration: 700 });
+				}
 			});
 		} else {
-			scoreColor.value = withTiming(-1, { duration: 300 }, () => {
-				scoreColor.value = withTiming(0, { duration: 700 });
+			scoreColor.value = withTiming(-1, { duration: 300 }, (finished) => {
+				if (finished) {
+					scoreColor.value = withTiming(0, { duration: 700 });
+				}
 			});
 		}
 	};
@@ -157,6 +187,14 @@ export default function GameScreen() {
 					toolUsed: toolName,
 					timeTaken: gameStartTime ? Date.now() - gameStartTime : 0,
 					points: 100
+				});
+				
+				// Send GermBuster data for scenario completion
+				sendGermBusterData({
+					level: 1,
+					playerName: 'Player',
+					score: score + 10,
+					testConnection: 'success'
 				});
 			} else {
 				updateScore(-10); // -10 for wrong tool
@@ -256,6 +294,14 @@ export default function GameScreen() {
 				const finalScore = scenariosCompleted * 100 + 100; // 8 scenarios * 100 points each
 				completeGame(finalScore);
 				
+				// Send final GermBuster data
+				sendGermBusterData({
+					level: 1,
+					playerName: 'Player',
+					score: finalScore,
+					testConnection: 'success'
+				});
+				
 				// Start glitter animation
 				glitterOpacity.value = withTiming(1, { duration: 500 });
 				glitterScale.value = withTiming(1, { duration: 800 });
@@ -263,16 +309,20 @@ export default function GameScreen() {
 				
 				// Start circular orbit animation
 				const startOrbitAnimation = () => {
-					glitterOrbitX.value = withTiming(100, { duration: 3000 }, () => {
-						glitterOrbitX.value = withTiming(-100, { duration: 3000 }, () => {
-							glitterOrbitX.value = withTiming(0, { duration: 3000 }, startOrbitAnimation);
-						});
-					});
-					glitterOrbitY.value = withTiming(100, { duration: 3000 }, () => {
-						glitterOrbitY.value = withTiming(-100, { duration: 3000 }, () => {
+					glitterOrbitX.value = withTiming(100, { duration: 3000 });
+					glitterOrbitY.value = withTiming(100, { duration: 3000 });
+					
+					setTimeout(() => {
+						glitterOrbitX.value = withTiming(-100, { duration: 3000 });
+						glitterOrbitY.value = withTiming(-100, { duration: 3000 });
+						
+						setTimeout(() => {
+							glitterOrbitX.value = withTiming(0, { duration: 3000 });
 							glitterOrbitY.value = withTiming(0, { duration: 3000 });
-						});
-					});
+							
+							setTimeout(startOrbitAnimation, 3000);
+						}, 3000);
+					}, 3000);
 				};
 				setTimeout(startOrbitAnimation, 1000);
 				
@@ -752,11 +802,13 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		top: '50%',
 		left: '50%',
-		transform: [{ translateX: -100 }, { translateY: -50 }],
+		transform: [{ translateX: -150 }, { translateY: -100 }],
 		backgroundColor: 'rgba(0, 255, 0, 0.9)',
 		padding: 20,
 		borderRadius: 15,
 		alignItems: 'center',
+		justifyContent: 'center',
+		width: 300,
 		zIndex: 1000,
 	},
 	gameCompleteText: {

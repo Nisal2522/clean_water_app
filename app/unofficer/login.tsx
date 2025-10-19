@@ -62,10 +62,10 @@ export default function UNOfficerLogin() {
 
   return (
     <LinearGradient
-      colors={['#1e3a8a', '#3b82f6', '#60a5fa']}
+      colors={['#a8d5ff', '#b8e0ff']}
       style={styles.container}
     >
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
@@ -119,8 +119,10 @@ export default function UNOfficerLogin() {
               disabled={loading}
             >
               <LinearGradient
-                colors={loading ? ['#9ca3af', '#6b7280'] : ['#10b981', '#34d399']}
+                colors={loading ? ['#9ca3af', '#6b7280'] : ['#0052cc', '#003d99']}
                 style={styles.loginButtonGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
               >
                 <Text style={styles.loginButtonText}>
                   {loading ? 'Signing In...' : 'Sign In'}
@@ -165,7 +167,7 @@ const styles = StyleSheet.create({
   },
   backButtonText: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(0, 0, 0, 0.7)',
     fontWeight: '600',
   },
   logoContainer: {
@@ -178,13 +180,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#000',
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(0, 0, 0, 0.7)',
     textAlign: 'center',
   },
   formContainer: {
@@ -207,7 +209,7 @@ const styles = StyleSheet.create({
   formTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#1e3a8a',
+    color: '#000',
     textAlign: 'center',
     marginBottom: 8,
   },
@@ -239,14 +241,11 @@ const styles = StyleSheet.create({
   loginButton: {
     marginTop: 20,
     borderRadius: 12,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowColor: '#0052cc',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   loginButtonDisabled: {
     opacity: 0.6,
@@ -266,17 +265,17 @@ const styles = StyleSheet.create({
     marginTop: 40,
     paddingTop: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.2)',
+    borderTopColor: 'rgba(0, 0, 0, 0.2)',
   },
   footerText: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: 'rgba(0, 0, 0, 0.7)',
     fontWeight: '600',
     marginBottom: 4,
   },
   footerSubtext: {
     fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: 'rgba(0, 0, 0, 0.5)',
     textAlign: 'center',
   },
 });

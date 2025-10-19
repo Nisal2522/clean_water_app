@@ -1,13 +1,14 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth } from '../firebase.config';
-import { 
-  saveGameSession, 
-  savePlayerScore, 
-  getTopScores, 
-  getGameStatistics,
-  logAnalyticsEvent,
-  ANALYTICS_EVENTS 
+import {
+    ANALYTICS_EVENTS,
+    getGameStatistics,
+    getTopScores,
+    logAnalyticsEvent,
+    saveGameSession,
+    saveGermBusterData,
+    savePlayerScore
 } from '../services/firebaseService';
 
 const FirebaseContext = createContext();
@@ -50,6 +51,14 @@ export const FirebaseProvider = ({ children }) => {
       
       const sessionId = await saveGameSession(sessionData);
       setGameSession({ id: sessionId, ...sessionData });
+      
+      // Save GermBuster start data
+      await saveGermBusterData({
+        level: 1,
+        playerName: playerName,
+        score: 0,
+        testConnection: 'success'
+      });
       
       // Log analytics
       logAnalyticsEvent(ANALYTICS_EVENTS.GAME_STARTED, {
@@ -114,6 +123,14 @@ export const FirebaseProvider = ({ children }) => {
         gameDuration: new Date(gameData.endTime) - new Date(gameData.startTime)
       });
       
+      // Save GermBuster specific data
+      await saveGermBusterData({
+        level: 1,
+        playerName: gameSession.playerName,
+        score: finalScore,
+        testConnection: 'success'
+      });
+      
       // Log analytics
       logAnalyticsEvent(ANALYTICS_EVENTS.GAME_COMPLETED, {
         final_score: finalScore,
@@ -161,6 +178,18 @@ export const FirebaseProvider = ({ children }) => {
     }
   };
 
+  // Send GermBuster data directly
+  const sendGermBusterData = async (gameData) => {
+    try {
+      const result = await saveGermBusterData(gameData);
+      console.log('GermBuster data sent successfully:', result);
+      return result;
+    } catch (error) {
+      console.error('Error sending GermBuster data:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -172,7 +201,8 @@ export const FirebaseProvider = ({ children }) => {
     completeGame,
     logToolSelection,
     loadTopScores,
-    loadGameStatistics
+    loadGameStatistics,
+    sendGermBusterData
   };
 
   return (

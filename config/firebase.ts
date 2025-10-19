@@ -37,7 +37,7 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 
 // AI Service Configuration
-export const REPLICATE_API_TOKEN = 'r8_VWL5BTn4sRc86nvGaAIojLeb0CNLoRB2hP93u';
+export const REPLICATE_API_TOKEN = 'r8_EbtjKqo6fwKB6HHwLDsrn6O7tQgDBxi1KmiZA';
 export const REPLICATE_API_URL = 'https://api.replicate.com/v1/predictions';
 
 // CORS Proxy for development (web only)
