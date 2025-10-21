@@ -97,3 +97,9 @@ Follow these simple steps to set up and run your Expo app 👇
 Make sure you're inside your project folder, then run:
 ```bash
 npm install
+
+## 📱 Download APK
+
+You can download the latest APK from the link below:
+
+👉 [Click here to download the APK] https://drive.google.com/drive/folders/1rNmpXsWldTaW_BzDzPsaSf9P3iq45d-a?usp=sharing
